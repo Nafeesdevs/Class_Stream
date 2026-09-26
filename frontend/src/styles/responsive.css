@@ -1,0 +1,123 @@
+/* Responsive Breakpoints & Utilities */
+
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .dashboard-sidebar {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  .video-learning-container {
+    flex-direction: column !important;
+  }
+
+  .course-detail-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .course-detail-sidebar {
+    position: static !important;
+  }
+}
+
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.65rem; }
+  h3 { font-size: 1.35rem; }
+
+  .section {
+    padding: 3.5rem 0;
+  }
+
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-section-wrapper {
+    flex-direction: column !important;
+    text-align: center;
+    gap: 2.5rem !important;
+  }
+
+  .hero-content {
+    max-width: 100% !important;
+  }
+
+  .hero-buttons {
+    justify-content: center !important;
+  }
+
+  .hero-stats-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .catalog-layout {
+    flex-direction: column !important;
+  }
+
+  .catalog-sidebar {
+    width: 100% !important;
+    margin-bottom: 1.5rem;
+  }
+
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+
+  .auth-split-wrapper {
+    flex-direction: column !important;
+  }
+
+  .auth-banner-side {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 15px;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-stats-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .toast-container {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: 100%;
+  }
+}
