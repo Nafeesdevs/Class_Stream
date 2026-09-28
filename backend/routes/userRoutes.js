@@ -20,7 +20,7 @@ router.post("/login", loginUser);
 router.route("/logout").get(logoutUser).post(logoutUser);
 
 // Profile
-router.get("/me", getCurrentUser);
+router.get("/me", verifyUser, getCurrentUser);
 router.put("/me/update", verifyUser, updateProfile);
 
 // Admin User Management
