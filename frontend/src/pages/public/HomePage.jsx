@@ -136,7 +136,8 @@ export const HomePage = () => {
 
     const sectionId = decodeURIComponent(location.hash.slice(1));
     const frame = requestAnimationFrame(() => {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+      const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+      document.getElementById(sectionId)?.scrollIntoView({ behavior });
     });
 
     return () => cancelAnimationFrame(frame);

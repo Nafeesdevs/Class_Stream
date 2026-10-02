@@ -26,7 +26,8 @@ export const AdminDashboardLayout = () => {
   }, [location.pathname]);
 
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+    window.scrollTo({ top: 0, left: 0, behavior });
   }, [location.pathname]);
 
   const navItemStyle = ({ isActive }) => ({

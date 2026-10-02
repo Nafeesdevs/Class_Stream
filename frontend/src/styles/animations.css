@@ -302,6 +302,37 @@
   animation: checkmarkPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Scroll-driven reveals and layered parallax */
+.scroll-motion-target {
+  opacity: 0;
+  translate: 0 30px;
+  scale: 0.985;
+  transition-property: opacity, translate, scale;
+  transition-duration: 760ms, 900ms, 1000ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--scroll-motion-delay, 0ms);
+  will-change: opacity, translate, scale;
+}
+
+.scroll-motion-target.scroll-motion-visible {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+.scroll-parallax-layer {
+  translate: var(--scroll-parallax-x, 0px) var(--scroll-parallax-y, 0px);
+  scale: var(--scroll-parallax-scale, 1);
+  will-change: translate, scale;
+}
+
+@media (max-width: 768px) {
+  .scroll-motion-target {
+    translate: 0 18px;
+    scale: 0.99;
+  }
+}
+
 /* Reduced Motion Respect */
 @media (prefers-reduced-motion: reduce) {
 
@@ -312,5 +343,14 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .scroll-motion-target,
+  .scroll-motion-target.scroll-motion-visible,
+  .scroll-parallax-layer {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: 1 !important;
+    will-change: auto;
   }
 }

@@ -6,6 +6,7 @@ import { ToastProvider } from "./context/ToastContext";
 // Layout components
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
+import ScrollExperience from "./components/common/ScrollExperience";
 
 // Route protection
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -47,7 +48,8 @@ const PublicLayout = () => {
 
   useLayoutEffect(() => {
     if (location.hash) return;
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+    window.scrollTo({ top: 0, left: 0, behavior });
   }, [location.pathname, location.search]);
 
   return (
@@ -66,6 +68,7 @@ export default function App() {
     <ToastProvider>
       <AuthProvider>
         <BrowserRouter>
+          <ScrollExperience />
           <Routes>
             {/* Public Layout Routes with standard Header and Footer */}
             <Route element={<PublicLayout />}>
