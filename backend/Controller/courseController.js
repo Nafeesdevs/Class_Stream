@@ -43,6 +43,7 @@ export const createCourse = async (req, res, next) => {
       price,
       originalPrice,
       isPaid,
+      isActive,
       instructor,
       level,
       duration,
@@ -153,6 +154,7 @@ export const createCourse = async (req, res, next) => {
       originalPrice: numericOriginalPrice,
       currency: "INR",
       isPaid: booleanIsPaid,
+      isActive: isActive === undefined ? true : isActive === "true" || isActive === true,
       instructor: instructor || "Prof. Sarah Jenkins",
       level: level || "All Levels",
       duration: duration || "8h 30m",
@@ -169,12 +171,12 @@ export const createCourse = async (req, res, next) => {
   }
 };
 
-// Get All Courses with filters, search, and sorting (GET /api/v1/course)
-export const getAllCourses = async (req, res, next) => {
+// Public requests only include active courses; admins can request the full list.
+const listCourses = async (req, res, next, includeInactive = false) => {
   try {
     const { keyword, category, courseClass, accessType, sort } = req.query;
 
-    const query = {};
+    const query = includeInactive ? {} : { isActive: { $ne: false } };
 
     if (keyword && keyword.trim() !== "") {
       query.$or = [
@@ -223,6 +225,10 @@ export const getAllCourses = async (req, res, next) => {
   }
 };
 
+export const getAllCourses = (req, res, next) => listCourses(req, res, next);
+
+export const getAllAdminCourses = (req, res, next) => listCourses(req, res, next, true);
+
 // Get Course By ID (GET /api/v1/course/:id)
 export const getCourseById = async (req, res, next) => {
   try {
@@ -230,6 +236,10 @@ export const getCourseById = async (req, res, next) => {
     const course = await Course.findById(id);
 
     if (!course) {
+      return next(new HandleError("Course not found", 404));
+    }
+
+    if (!course.isActive && req.user?.role !== "admin") {
       return next(new HandleError("Course not found", 404));
     }
 
@@ -275,6 +285,9 @@ export const updateCourse = async (req, res, next) => {
     }
 
     const updateData = { ...req.body };
+    if (req.body.isActive !== undefined) {
+      updateData.isActive = req.body.isActive === "true" || req.body.isActive === true;
+    }
     let parsedVideos = [];
     if (req.body.courseVideo) {
       try {
@@ -329,7 +342,7 @@ export const updateCourse = async (req, res, next) => {
     }
 
     course = await Course.findByIdAndUpdate(id, updateData, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 
@@ -389,6 +402,10 @@ export const enrollFreeCourse = async (req, res, next) => {
     const course = await Course.findById(courseId);
     if (!course) {
       return next(new HandleError("Course not found", 404));
+    }
+
+    if (!course.isActive) {
+      return next(new HandleError("This course is inactive and cannot accept new enrollments.", 404));
     }
 
     if (course.isPaid && course.price > 0) {
@@ -494,6 +511,10 @@ export const checkVideoAccess = async (req, res, next) => {
     const course = await Course.findById(id);
 
     if (!course) {
+      return next(new HandleError("Course not found", 404));
+    }
+
+    if (!course.isActive && req.user?.role !== "admin") {
       return next(new HandleError("Course not found", 404));
     }
 

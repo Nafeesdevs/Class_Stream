@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import paymentService from "../../services/paymentService";
 import {
   DollarSign,
@@ -10,9 +11,40 @@ import {
   Plus,
   ArrowRight,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 
+const AnimatedMetric = ({ value, currency = false }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    const target = Number(value) || 0;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDisplayValue(target);
+      return undefined;
+    }
+
+    let frameId;
+    let startTime;
+    const duration = 1000;
+    const animate = (time) => {
+      if (startTime === undefined) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      setDisplayValue(target * easedProgress);
+      if (progress < 1) frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [value]);
+
+  const formatted = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(Math.round(displayValue));
+  return <>{currency ? "₹" : ""}{formatted}</>;
+};
+
 export const AdminOverviewPage = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +66,46 @@ export const AdminOverviewPage = () => {
   }, []);
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in responsive-page admin-overview-page">
+      <section
+        style={{
+          background: "var(--primary-gradient)",
+          color: "#ffffff",
+          padding: "2.25rem",
+          borderRadius: "var(--radius-xl)",
+          marginBottom: "2rem",
+          boxShadow: "var(--shadow-md)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ maxWidth: "640px", position: "relative", zIndex: 1 }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              padding: "0.25rem 0.65rem",
+              borderRadius: "var(--radius-full)",
+              background: "rgba(255, 255, 255, 0.2)",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              marginBottom: "0.85rem",
+            }}
+          >
+            <Sparkles size={13} />
+            <span>Admin Console</span>
+          </div>
+          <h1 style={{ color: "#ffffff", fontSize: "1.85rem", marginBottom: "0.5rem" }}>
+            Welcome back, {user?.name || "Admin"}!
+          </h1>
+          <p style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: "0.95rem", lineHeight: 1.6 }}>
+            Review platform performance, manage learning tracks, and keep student activity moving forward.
+          </p>
+        </div>
+      </section>
+
       {/* Top Header */}
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
         <div>
@@ -77,7 +148,7 @@ export const AdminOverviewPage = () => {
             </span>
           </div>
           <div style={{ fontSize: "1.85rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-            ₹{stats?.totalRevenue?.toLocaleString("en-IN") || 0}
+            <AnimatedMetric value={stats?.totalRevenue || 0} currency />
           </div>
         </div>
 
@@ -102,7 +173,7 @@ export const AdminOverviewPage = () => {
             </span>
           </div>
           <div style={{ fontSize: "1.85rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-            {stats?.totalUsers || 0}
+            <AnimatedMetric value={stats?.totalUsers || 0} />
           </div>
         </div>
 
@@ -127,7 +198,7 @@ export const AdminOverviewPage = () => {
             </span>
           </div>
           <div style={{ fontSize: "1.85rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-            {stats?.totalCourses || 0}
+            <AnimatedMetric value={stats?.totalCourses || 0} />
           </div>
         </div>
 
@@ -152,7 +223,7 @@ export const AdminOverviewPage = () => {
             </span>
           </div>
           <div style={{ fontSize: "1.85rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-            {stats?.totalEnrollments || 0}
+            <AnimatedMetric value={stats?.totalEnrollments || 0} />
           </div>
         </div>
       </div>

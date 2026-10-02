@@ -116,7 +116,7 @@ export const CourseCatalogPage = () => {
   const hasActiveFilters = !!(keyword || selectedCategory || selectedClass || selectedAccess);
 
   return (
-    <div className="container" style={{ paddingTop: "2.5rem", paddingBottom: "5rem" }}>
+    <div className="container animate-fade-in responsive-page course-catalog-page" style={{ paddingTop: "2.5rem", paddingBottom: "5rem" }}>
       {/* Header & Search Banner */}
       <div
         style={{

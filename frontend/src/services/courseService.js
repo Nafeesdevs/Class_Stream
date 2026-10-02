@@ -6,6 +6,11 @@ export const courseService = {
     return response.data;
   },
 
+  async getAllAdminCourses(params = {}) {
+    const response = await api.get("/admin/courses", { params });
+    return response.data;
+  },
+
   async getCourseById(id) {
     const response = await api.get(`/course/${id}`);
     return response.data;

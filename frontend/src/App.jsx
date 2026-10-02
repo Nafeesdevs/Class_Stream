@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import React, { useLayoutEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 
@@ -39,13 +39,21 @@ import AdminClassesPage from "./pages/admin/AdminClassesPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminPaymentsPage from "./pages/admin/AdminPaymentsPage";
 import AdminEnrollmentsPage from "./pages/admin/AdminEnrollmentsPage";
+import AdminGrowthHighlightsPage from "./pages/admin/AdminGrowthHighlightsPage";
 
 // Public site shell with Navbar and Footer
 const PublicLayout = () => {
+  const location = useLocation();
+
+  useLayoutEffect(() => {
+    if (location.hash) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.pathname, location.search]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Navbar />
-      <main style={{ flex: 1 }}>
+      <main key={`${location.pathname}${location.search}`} className="course-route-enter" style={{ flex: 1 }}>
         <Outlet />
       </main>
       <Footer />
@@ -67,38 +75,40 @@ export default function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
-              {/* Protected Student Dashboard */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <UserDashboardLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<DashboardOverviewPage />} />
-                <Route path="my-learning" element={<MyLearningPage />} />
-                <Route path="payments" element={<PaymentHistoryPage />} />
-                <Route path="profile" element={<ProfilePage />} />
-              </Route>
+            </Route>
 
-              {/* Protected Admin Console */}
-              <Route
-                path="/admin"
-                element={
-                  <AdminRoute>
-                    <AdminDashboardLayout />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<AdminOverviewPage />} />
-                <Route path="courses" element={<AdminCoursesPage />} />
-                <Route path="categories" element={<AdminCategoriesPage />} />
-                <Route path="classes" element={<AdminClassesPage />} />
-                <Route path="users" element={<AdminUsersPage />} />
-                <Route path="payments" element={<AdminPaymentsPage />} />
-                <Route path="enrollments" element={<AdminEnrollmentsPage />} />
-              </Route>
+            {/* Protected Student Dashboard without public site chrome */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <UserDashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<DashboardOverviewPage />} />
+              <Route path="my-learning" element={<MyLearningPage />} />
+              <Route path="payments" element={<PaymentHistoryPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+            </Route>
+
+            {/* Protected Admin Console without public site chrome */}
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboardLayout />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<AdminOverviewPage />} />
+              <Route path="courses" element={<AdminCoursesPage />} />
+              <Route path="categories" element={<AdminCategoriesPage />} />
+              <Route path="classes" element={<AdminClassesPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="payments" element={<AdminPaymentsPage />} />
+              <Route path="enrollments" element={<AdminEnrollmentsPage />} />
+              <Route path="growth-highlights" element={<AdminGrowthHighlightsPage />} />
             </Route>
 
             {/* Immersive Video Learning Player (Standalone Dark Theme Experience) */}

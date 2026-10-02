@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import categoryService from "../../services/categoryService";
+import courseService from "../../services/courseService";
 import { useToast } from "../../context/ToastContext";
 import ConfirmModal from "../../components/common/ConfirmModal";
-import { Plus, Edit2, Trash2, FolderTree, X, Image as ImageIcon } from "lucide-react";
+import AdminExcelToolbar from "../../components/common/AdminExcelToolbar";
+import { Plus, Edit2, Trash2, FolderTree, X, Image as ImageIcon, Search } from "lucide-react";
 
 export const AdminCategoriesPage = () => {
   const toast = useToast();
 
   const [categories, setCategories] = useState([]);
+  const [categoryUsage, setCategoryUsage] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [usageFilter, setUsageFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
   // Modal State
@@ -24,10 +30,16 @@ export const AdminCategoriesPage = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const res = await categoryService.getAllCategories();
-      if (res?.category) {
-        setCategories(res.category);
-      }
+      const [res, courseRes] = await Promise.all([
+        categoryService.getAllCategories(),
+        courseService.getAllAdminCourses(),
+      ]);
+      if (res?.category) setCategories(res.category);
+      const usage = {};
+      (courseRes?.courses || []).forEach((course) => {
+        usage[course.courseCategory] = (usage[course.courseCategory] || 0) + 1;
+      });
+      setCategoryUsage(usage);
     } catch (err) {
       toast.error("Failed to load categories.");
     } finally {
@@ -38,6 +50,29 @@ export const AdminCategoriesPage = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const filteredCategories = categories.filter((category) => {
+    const matchesName = category.categoryName.toLowerCase().includes(searchQuery.trim().toLowerCase());
+    const count = categoryUsage[category.categoryName] || 0;
+    return matchesName && (usageFilter === "all" || (usageFilter === "used" ? count > 0 : count === 0));
+  });
+
+  const importCategories = async (rows) => {
+    let imported = 0;
+    const existingNames = new Set(categories.map((category) => category.categoryName.toLowerCase()));
+    for (const row of rows) {
+      const name = String(row.categoryName || row.Category || "").trim();
+      if (!name || existingNames.has(name.toLowerCase())) continue;
+      const data = new FormData();
+      data.append("categoryName", name);
+      await categoryService.createCategory(data);
+      existingNames.add(name.toLowerCase());
+      imported += 1;
+    }
+    await fetchCategories();
+    toast.success(`Imported ${imported} new categories.`);
+    return `Imported ${imported} categories`;
+  };
 
   const openCreateModal = () => {
     setEditingCategory(null);
@@ -101,8 +136,8 @@ export const AdminCategoriesPage = () => {
   };
 
   return (
-    <div className="animate-fade-in">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+    <div className="animate-fade-in responsive-page admin-categories-page">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap", marginBottom: "1.25rem" }}>
         <div>
           <h1 style={{ fontSize: "1.75rem", marginBottom: "0.4rem" }}>Category Management</h1>
           <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
@@ -115,9 +150,28 @@ export const AdminCategoriesPage = () => {
         </button>
       </div>
 
+      <div className="admin-list-toolbar">
+        <div className="input-with-icon" style={{ flex: "1 1 240px", minWidth: 0 }}>
+          <Search className="input-icon-left" size={17} />
+          <input className="form-control" type="search" aria-label="Search categories" placeholder="Search categories..." value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} style={{ paddingLeft: "2.5rem" }} />
+        </div>
+        <select className="form-control" aria-label="Filter categories by course usage" value={usageFilter} onChange={(event) => setUsageFilter(event.target.value)} style={{ flex: "0 1 190px" }}>
+          <option value="all">All Categories</option>
+          <option value="used">Used by Courses</option>
+          <option value="unused">Unused Categories</option>
+        </select>
+        <AdminExcelToolbar
+          rows={categories.map((category) => ({ categoryName: category.categoryName, courseCount: categoryUsage[category.categoryName] || 0, createdAt: category.createdAt }))}
+          sheetName="Categories"
+          fileName="classstream-categories"
+          onImport={importCategories}
+          onError={(error) => toast.error(error.formattedMessage || error.message || "Could not import categories.")}
+        />
+      </div>
+
       {loading ? (
         <div className="skeleton" style={{ width: "100%", height: "240px", borderRadius: "var(--radius-lg)" }} />
-      ) : categories.length > 0 ? (
+      ) : filteredCategories.length > 0 ? (
         <div
           style={{
             display: "grid",
@@ -125,7 +179,7 @@ export const AdminCategoriesPage = () => {
             gap: "1.5rem",
           }}
         >
-          {categories.map((cat) => {
+          {filteredCategories.map((cat) => {
             const img =
               cat.categoryImage?.[0]?.imageUrl ||
               "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80";
@@ -162,13 +216,13 @@ export const AdminCategoriesPage = () => {
         </div>
       ) : (
         <div className="empty-state">
-          <h4>No Categories Created</h4>
-          <p>Create your first curriculum category.</p>
+          <h4>{categories.length ? "No Matching Categories" : "No Categories Created"}</h4>
+          <p>{categories.length ? "Change the search or usage filter." : "Create your first curriculum category."}</p>
         </div>
       )}
 
       {/* Add / Edit Category Modal */}
-      {isModalOpen && (
+      {isModalOpen && createPortal(
         <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}>
           <div
             className="modal-dialog animate-modal"
@@ -217,7 +271,8 @@ export const AdminCategoriesPage = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <ConfirmModal

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import courseService from "../../services/courseService";
 import categoryService from "../../services/categoryService";
+import growthHighlightService from "../../services/growthHighlightService";
 import CourseCard from "../../components/common/CourseCard";
 import { CourseSkeletonCard } from "../../components/common/LoadingSkeleton";
 import {
@@ -25,12 +26,63 @@ import {
   Cpu,
 } from "lucide-react";
 
+const defaultGrowthStats = [
+  { value: 14000, suffix: "+", label: "Active Enrolled Students", sub: "Global engineering cohort" },
+  { value: 150, suffix: "+", label: "HD Masterclass Tracks", sub: "Zero-buffering video lessons" },
+  { value: 25, suffix: "+", label: "Specialized Curriculums", sub: "Frontend, AI, Cloud & Systems" },
+  { value: 98.6, suffix: "%", label: "Course Satisfaction", sub: "Verified post-completion rating" },
+];
+
+const AnimatedStatValue = ({ value, suffix, isVisible }) => {
+  const [count, setCount] = useState(0);
+  const precision = String(value).split(".")[1]?.length || 0;
+
+  useEffect(() => {
+    if (!isVisible) {
+      setCount(0);
+      return undefined;
+    }
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      setCount(value);
+      return undefined;
+    }
+
+    let frameId;
+    let startTime;
+    const duration = 1300;
+
+    const animate = (time) => {
+      if (startTime === undefined) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      setCount(value * easedProgress);
+      if (progress < 1) frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [isVisible, value]);
+
+  const formattedCount = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision,
+  }).format(count);
+
+  return <>{formattedCount}<span style={{ color: "var(--primary)" }}>{suffix}</span></>;
+};
+
 export const HomePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [growthStats, setGrowthStats] = useState(defaultGrowthStats);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsSectionRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +108,40 @@ export const HomePage = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    growthHighlightService.getGrowthHighlights()
+      .then((response) => {
+        const savedStats = response?.growthHighlights?.stats;
+        if (Array.isArray(savedStats) && savedStats.length === 4) {
+          setGrowthStats(savedStats);
+        }
+      })
+      .catch((err) => console.warn("Growth highlights load warning:", err));
+  }, []);
+
+  useEffect(() => {
+    const section = statsSectionRef.current;
+    if (!section) return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setStatsVisible(entry.isIntersecting),
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.15 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!location.hash) return;
+
+    const sectionId = decodeURIComponent(location.hash.slice(1));
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [location.hash]);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -66,7 +152,7 @@ export const HomePage = () => {
   };
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in responsive-page home-page">
       {/* 1. HERO SECTION */}
       <section
         style={{
@@ -601,11 +687,62 @@ export const HomePage = () => {
               );
             })}
           </div>
+
+           <div className="marquee-content2">
+            {[
+              { name: "Cloud Deployment & DevOps", icon: Code },
+              { name: "JavaScript & TypeScript", icon: Sparkles },
+              { name: "Java & Spring Boot", icon: Cpu },
+              { name: "Machine Learning", icon: Flame },
+              { name: "MongoDB & Mongooses", icon: Layers },
+              { name: "MySQL & SQL", icon: Zap },
+              { name: "REST APIs & JWT Auth", icon: ShieldCheck },
+              { name: "Vercel & Render", icon: Award },
+              { name: "Docker & DevOps", icon: Users },
+              { name: "Authentication & Security", icon: BookOpen },
+              // Duplicate set for smooth infinite loop
+             { name: "Cloud Deployment & DevOps", icon: Code },
+              { name: "JavaScript & TypeScript", icon: Sparkles },
+              { name: "Java & Spring Boot", icon: Cpu },
+              { name: "Machine Learning", icon: Flame },
+              { name: "MongoDB & Mongooses", icon: Layers },
+              { name: "MySQL & SQL", icon: Zap },
+              { name: "REST APIs & JWT Auth", icon: ShieldCheck },
+              { name: "Vercel & Render", icon: Award },
+              { name: "Docker & DevOps", icon: Users },
+              { name: "Authentication & Security", icon: BookOpen },
+            ].map((tech, idx) => {
+              const IconComp = tech.icon;
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    padding: "0.4rem 0.95rem",
+                    borderRadius: "var(--radius-full)",
+                    background: "var(--surface-sunken)",
+                    border: "1px solid var(--border)",
+                    fontSize: "0.82rem",
+                    fontWeight: 700,
+                    color: "var(--text-body)",
+                    whiteSpace: "nowrap",
+                    marginTop: "20px",
+                  }}
+                >
+                  <IconComp size={15} color="var(--primary)" />
+                  <span>{tech.name}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* 3. METRICS & STATISTICS ROW */}
       <section
+        ref={statsSectionRef}
         style={{
           borderBottom: "1px solid var(--border)",
           background: "var(--surface)",
@@ -622,12 +759,7 @@ export const HomePage = () => {
               textAlign: "center",
             }}
           >
-            {[
-              { num: "14,000", suffix: "+", label: "Active Enrolled Students", sub: "Global engineering cohort" },
-              { num: "150", suffix: "+", label: "HD Masterclass Tracks", sub: "Zero-buffering video lessons" },
-              { num: "25", suffix: "+", label: "Specialized Curriculums", sub: "Frontend, AI, Cloud & Systems" },
-              { num: "98.6", suffix: "%", label: "Course Satisfaction", sub: "Verified post-completion rating" },
-            ].map((stat, i) => (
+            {growthStats.map((stat, i) => (
               <div
                 key={i}
                 className="hover-elevate"
@@ -649,7 +781,7 @@ export const HomePage = () => {
                     lineHeight: 1.1,
                   }}
                 >
-                  {stat.num}<span style={{ color: "var(--primary)" }}>{stat.suffix}</span>
+                  <AnimatedStatValue value={Number(stat.value)} suffix={stat.suffix} isVisible={statsVisible} />
                 </div>
                 <div style={{ fontSize: "0.9rem", color: "var(--text-main)", fontWeight: 700, marginTop: "0.4rem" }}>
                   {stat.label}
@@ -664,7 +796,7 @@ export const HomePage = () => {
       </section>
 
       {/* 3. POPULAR CATEGORIES */}
-      <section id="categories" className="section" style={{ backgroundColor: "#f8fafc" }}>
+      <section id="categories" className="section" style={{ backgroundColor: "#f8fafc", scrollMarginTop: "88px" }}>
         <div className="container">
           <div className="section-header">
             <span className="section-tag">Explore Domains</span>
@@ -675,6 +807,7 @@ export const HomePage = () => {
           </div>
 
           <div
+            className="platform-feature-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
@@ -792,7 +925,7 @@ export const HomePage = () => {
       </section>
 
       {/* 5. WHY CHOOSE CLASS STREAM - INTERACTIVE BENTO GRID */}
-      <section id="why-us" className="section" style={{ backgroundColor: "#ffffff" }}>
+      <section id="why-us" className="section" style={{ backgroundColor: "#ffffff", scrollMarginTop: "88px" }}>
         <div className="container">
           <div className="section-header">
             <span className="section-tag">Platform Advantages</span>
@@ -811,7 +944,7 @@ export const HomePage = () => {
           >
             {/* Bento Card 1 (Span 7 Columns): Studio-Grade Adaptive Streaming */}
             <div
-              className="card hover-elevate"
+              className="card hover-elevate platform-feature-card platform-feature-card--streaming"
               style={{
                 gridColumn: "span 7",
                 padding: "2.5rem",
@@ -918,7 +1051,7 @@ export const HomePage = () => {
 
             {/* Bento Card 2 (Span 5 Columns): Free Trial & Multi-Tier Access */}
             <div
-              className="card hover-elevate"
+              className="card hover-elevate platform-feature-card"
               style={{
                 gridColumn: "span 5",
                 padding: "2.5rem",
@@ -963,7 +1096,7 @@ export const HomePage = () => {
 
             {/* Bento Card 3 (Span 5 Columns): Verified Razorpay Test Sandbox */}
             <div
-              className="card hover-elevate"
+              className="card hover-elevate platform-feature-card"
               style={{
                 gridColumn: "span 5",
                 padding: "2.5rem",
@@ -1006,7 +1139,7 @@ export const HomePage = () => {
 
             {/* Bento Card 4 (Span 7 Columns): Real-Time Cloud Progress Synchronization */}
             <div
-              className="card hover-elevate"
+              className="card hover-elevate platform-feature-card"
               style={{
                 gridColumn: "span 7",
                 padding: "2.5rem",

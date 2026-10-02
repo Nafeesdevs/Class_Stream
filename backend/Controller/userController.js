@@ -57,6 +57,9 @@ export const loginUser = async (req, res, next) => {
     if (!isValidPassword) {
       return next(new HandleError("Invalid Email or Password", 401));
     }
+    if (user.isActive === false) {
+      return next(new HandleError("This account is inactive.", 403));
+    }
 
     sendToken(user, 200, res);
   } catch (error) {
@@ -127,7 +130,7 @@ export const updateProfile = async (req, res, next) => {
     if (avatar !== undefined) updateData.avatar = avatar;
 
     const user = await User.findByIdAndUpdate(req.user.id, updateData, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 
@@ -169,6 +172,44 @@ export const getAllUser = async (req, res, next) => {
   }
 };
 
+export const createAdminManagedUser = async (req, res, next) => {
+  try {
+    const { name, email, password, role = "user" } = req.body;
+    if (!name?.trim() || !email?.trim() || !password || password.length < 6) {
+      return next(new HandleError("Name, email, and a password of at least six characters are required", 400));
+    }
+    if (!['user', 'admin'].includes(role)) {
+      return next(new HandleError("Invalid user role", 400));
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser) {
+      return next(new HandleError("An account with this email already exists", 409));
+    }
+
+    const user = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      password,
+      role,
+    });
+
+    res.status(201).json({
+      success: true,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Get User by ID (Admin or Self)
 export const getUserById = async (req, res, next) => {
   try {
@@ -190,14 +231,15 @@ export const getUserById = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const { name, role } = req.body;
+    const { name, role, isActive } = req.body;
 
     const updateData = {};
     if (name) updateData.name = name;
     if (role) updateData.role = role;
+    if (isActive !== undefined) updateData.isActive = isActive === "true" || isActive === true;
 
     const user = await User.findByIdAndUpdate(id, updateData, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 

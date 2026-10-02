@@ -1,5 +1,5 @@
-import React from "react";
-import { Outlet, NavLink, Link } from "react-router-dom";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { Outlet, NavLink, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   BarChart3,
@@ -11,10 +11,23 @@ import {
   UserCheck,
   ArrowLeft,
   ShieldAlert,
+  TrendingUp,
+  Menu,
+  X,
 } from "lucide-react";
 
 export const AdminDashboardLayout = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.pathname]);
 
   const navItemStyle = ({ isActive }) => ({
     display: "flex",
@@ -31,7 +44,15 @@ export const AdminDashboardLayout = () => {
   });
 
   return (
-    <div className="container" style={{ paddingTop: "2rem", paddingBottom: "5rem" }}>
+    <div className={`container admin-console-shell${mobileMenuOpen ? " admin-mobile-nav-open" : ""}`} style={{ paddingTop: "2rem", paddingBottom: "5rem" }}>
+      <button
+        className="mobile-menu-backdrop"
+        type="button"
+        aria-label="Close admin menu"
+        aria-hidden={!mobileMenuOpen}
+        tabIndex={mobileMenuOpen ? 0 : -1}
+        onClick={() => setMobileMenuOpen(false)}
+      />
       <div
         className="dashboard-layout"
         style={{
@@ -53,8 +74,29 @@ export const AdminDashboardLayout = () => {
             boxShadow: "var(--shadow-xs)",
           }}
         >
+          <div className="admin-mobile-header">
+            <Link to="/" className="admin-mobile-brand" aria-label="ClassStream Admin Console">
+              <span className="admin-mobile-brand-icon"><GraduationCap size={21} /></span>
+              <span className="admin-mobile-brand-copy">
+                <strong>ClassStream</strong>
+                <small>ADMIN CONSOLE</small>
+              </span>
+            </Link>
+            <button
+              className="admin-mobile-menu-toggle"
+              type="button"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="admin-mobile-navigation"
+              aria-label={mobileMenuOpen ? "Close admin menu" : "Open admin menu"}
+              onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
           {/* Admin Header */}
           <div
+            className="admin-sidebar-heading"
             style={{
               paddingBottom: "1.25rem",
               marginBottom: "1.25rem",
@@ -71,7 +113,7 @@ export const AdminDashboardLayout = () => {
           </div>
 
           {/* Nav Items */}
-          <nav style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <nav id="admin-mobile-navigation" className="dashboard-sidebar-navigation" onClick={() => setMobileMenuOpen(false)} style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
             <NavLink to="/admin" end style={navItemStyle}>
               <BarChart3 size={18} />
               <span>Overview & Stats</span>
@@ -107,29 +149,34 @@ export const AdminDashboardLayout = () => {
               <span>Enrollments</span>
             </NavLink>
 
-            <div style={{ height: "1px", background: "var(--border-light)", margin: "0.75rem 0" }} />
+            <NavLink to="/admin/growth-highlights" style={navItemStyle}>
+              <TrendingUp size={18} />
+              <span>Growth Highlights</span>
+            </NavLink>
 
-            <Link
-              to="/"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                padding: "0.75rem 1rem",
-                borderRadius: "var(--radius-md)",
-                fontSize: "0.9rem",
-                color: "var(--text-muted)",
-                textDecoration: "none",
-              }}
-            >
-              <ArrowLeft size={16} />
-              <span>Return to Site</span>
-            </Link>
+            <div className="dashboard-sidebar-footer">
+              <Link
+                to="/"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: "0.9rem",
+                  color: "var(--text-muted)",
+                  textDecoration: "none",
+                }}
+              >
+                <ArrowLeft size={16} />
+                <span>Return to Site</span>
+              </Link>
+            </div>
           </nav>
         </aside>
 
         {/* Dynamic Nested Admin Views */}
-        <main style={{ flex: 1, minWidth: 0 }}>
+        <main key={location.pathname} className="admin-route-transition" style={{ flex: 1, minWidth: 0 }}>
           <Outlet />
         </main>
       </div>

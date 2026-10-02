@@ -12,6 +12,34 @@ import {
   Flame,
 } from "lucide-react";
 
+const AnimatedMetric = ({ value, suffix = "", precision = 0 }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const target = Number(value) || 0;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setCount(target);
+      return undefined;
+    }
+
+    let frameId;
+    let startTime;
+    const duration = 1100;
+    const animate = (time) => {
+      if (startTime === undefined) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      setCount(target * easedProgress);
+      if (progress < 1) frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [value]);
+
+  return <>{count.toFixed(precision)}{suffix}</>;
+};
+
 export const DashboardOverviewPage = () => {
   const { user } = useAuth();
   const [enrolledCourses, setEnrolledCourses] = useState([]);
@@ -35,10 +63,14 @@ export const DashboardOverviewPage = () => {
   }, []);
 
   const totalEnrolled = enrolledCourses.length;
-  const recentCourse = enrolledCourses[0];
+  const recentEnrollment = enrolledCourses[0];
+  const recentCourse = recentEnrollment?.course || recentEnrollment;
+  const recentTotalLessons = recentCourse?.courseVideo?.length || 1;
+  const recentCompletedLessons = recentEnrollment?.completedLessons?.length || 0;
+  const recentProgress = Math.min(100, Math.round((recentCompletedLessons / recentTotalLessons) * 100));
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in responsive-page dashboard-overview-page">
       {/* Welcome Banner */}
       <div
         style={{
@@ -103,7 +135,7 @@ export const DashboardOverviewPage = () => {
             </span>
           </div>
           <div style={{ fontSize: "1.75rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-            {totalEnrolled}
+            <AnimatedMetric value={totalEnrolled} />
           </div>
         </div>
 
@@ -128,7 +160,7 @@ export const DashboardOverviewPage = () => {
             </span>
           </div>
           <div style={{ fontSize: "1.75rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-            {user?.enrolledCourses?.reduce((acc, c) => acc + (c.completedLessons?.length || 0), 0) || 0}
+            <AnimatedMetric value={user?.enrolledCourses?.reduce((acc, c) => acc + (c.completedLessons?.length || 0), 0) || 0} />
           </div>
         </div>
 
@@ -153,7 +185,7 @@ export const DashboardOverviewPage = () => {
             </span>
           </div>
           <div style={{ fontSize: "1.75rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-            14.5 hrs
+            <AnimatedMetric value={14.5} suffix=" hrs" precision={1} />
           </div>
         </div>
 
@@ -178,7 +210,7 @@ export const DashboardOverviewPage = () => {
             </span>
           </div>
           <div style={{ fontSize: "1.75rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-            {totalEnrolled > 0 ? 1 : 0}
+            <AnimatedMetric value={totalEnrolled > 0 ? 1 : 0} />
           </div>
         </div>
       </div>
@@ -230,10 +262,10 @@ export const DashboardOverviewPage = () => {
               <div style={{ marginTop: "0.75rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
                   <span>Lesson Progress</span>
-                  <span>45% Completed</span>
+                  <span>{recentProgress}% Completed</span>
                 </div>
                 <div style={{ width: "100%", height: "6px", background: "var(--border)", borderRadius: "var(--radius-full)", overflow: "hidden" }}>
-                  <div style={{ width: "45%", height: "100%", background: "var(--primary-gradient)" }} />
+                  <div style={{ width: `${recentProgress}%`, height: "100%", background: "var(--primary-gradient)" }} />
                 </div>
               </div>
             </div>

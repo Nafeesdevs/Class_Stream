@@ -4,6 +4,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -16,18 +17,24 @@
 
 /* Hero Floating Animations with Staggered Easing */
 @keyframes floatSlow {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-8px);
   }
 }
 
 @keyframes floatSlowReverse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(8px);
   }
@@ -43,10 +50,13 @@
 
 /* Ambient Aurora Breathing Glow */
 @keyframes auroraShift {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.6;
     transform: scale(1) rotate(0deg);
   }
+
   50% {
     opacity: 0.9;
     transform: scale(1.08) rotate(3deg);
@@ -62,6 +72,7 @@
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -74,15 +85,26 @@
   animation: marqueeScroll 28s linear infinite;
 }
 
-.marquee-content:hover {
+.marquee-content2 {
+  display: flex;
+  gap: 2.5rem;
+  width: max-content;
+  animation: marqueeScroll 28s linear infinite reverse;
+}
+
+.marquee-content:hover,
+.marquee-content2:hover {
   animation-play-state: paused;
 }
 
 /* Glowing Pulsing Beacon */
 @keyframes pulseGlow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45);
   }
+
   50% {
     box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
   }
@@ -98,10 +120,12 @@
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
   }
+
   70% {
     transform: scale(1);
     box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
   }
+
   100% {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
@@ -117,6 +141,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -155,10 +180,13 @@
 
 /* Hero Badge Glow */
 @keyframes pulseSubtle {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.85;
     transform: scale(1.02);
@@ -174,6 +202,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -192,6 +221,7 @@
     opacity: 0;
     transform: translateY(-8px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -208,6 +238,7 @@
     opacity: 0;
     transform: scale(0.94) translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -224,6 +255,7 @@
     opacity: 0;
     transform: translateX(30px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateX(0) scale(1);
@@ -239,6 +271,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -254,9 +287,11 @@
     transform: scale(0);
     opacity: 0;
   }
+
   60% {
     transform: scale(1.15);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -269,6 +304,7 @@
 
 /* Reduced Motion Respect */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   ::before,
   ::after {

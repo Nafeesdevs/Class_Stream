@@ -2,7 +2,9 @@
 @import "./animations.css";
 
 /* CSS Reset & Defaults */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -33,7 +35,12 @@ body {
 }
 
 /* Headings */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   color: var(--text-main);
   font-weight: 700;
@@ -41,12 +48,29 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
-h5 { font-size: 1.1rem; }
-h6 { font-size: 1rem; }
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.1rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
 
 p {
   color: var(--text-muted);
@@ -63,7 +87,8 @@ a:hover {
   color: var(--primary-hover);
 }
 
-img, video {
+img,
+video {
   max-width: 100%;
   height: auto;
   display: block;
@@ -138,7 +163,8 @@ img, video {
   transform: scale(0.98);
 }
 
-.btn:disabled, .btn.disabled {
+.btn:disabled,
+.btn.disabled {
   opacity: 0.55;
   cursor: not-allowed;
   pointer-events: none;
@@ -182,6 +208,21 @@ img, video {
   background: var(--bg-subtle);
   border-color: #cbd5e1;
   color: var(--text-main);
+}
+
+.video-learning-page .video-lesson-prev {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #000000;
+  opacity: 1;
+}
+
+.video-learning-page .video-lesson-prev:hover:not(:disabled) {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.28), 0 0 12px rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+  color: #000000;
 }
 
 .btn-outline-primary {
@@ -429,6 +470,171 @@ img, video {
   vertical-align: middle;
 }
 
+.admin-console-shell {
+  width: min(100%, 1760px);
+  max-width: none;
+}
+
+.admin-console-shell .table {
+  font-size: 0.82rem;
+  table-layout: fixed;
+}
+
+.admin-console-shell .table th {
+  padding: 0.7rem 0.65rem;
+}
+
+.admin-console-shell .table td {
+  padding: 0.7rem 0.65rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-console-shell .admin-course-table {
+  min-width: 1120px;
+}
+
+.admin-console-shell .admin-course-table th:nth-child(1),
+.admin-console-shell .admin-course-table td:nth-child(1) {
+  width: 9%;
+}
+
+.admin-console-shell .admin-course-table th:nth-child(2),
+.admin-console-shell .admin-course-table td:nth-child(2) {
+  width: 21%;
+}
+
+.admin-console-shell .admin-course-table th:nth-child(3),
+.admin-console-shell .admin-course-table td:nth-child(3) {
+  width: 19%;
+}
+
+.admin-console-shell .admin-course-table th:nth-child(4),
+.admin-console-shell .admin-course-table td:nth-child(4) {
+  width: 11%;
+}
+
+.admin-console-shell .admin-course-table th:nth-child(5),
+.admin-console-shell .admin-course-table td:nth-child(5) {
+  width: 8%;
+}
+
+.admin-console-shell .admin-course-table th:nth-child(6),
+.admin-console-shell .admin-course-table td:nth-child(6) {
+  width: 8%;
+}
+
+.admin-console-shell .admin-course-table th:nth-child(7),
+.admin-console-shell .admin-course-table td:nth-child(7) {
+  width: 12%;
+}
+
+.admin-console-shell .admin-course-table th:nth-child(8),
+.admin-console-shell .admin-course-table td:nth-child(8) {
+  width: 12%;
+}
+
+.admin-console-shell .admin-course-category {
+  display: inline-flex;
+  max-width: 100%;
+  justify-content: center;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.admin-console-shell .admin-course-table td:nth-child(5),
+.admin-console-shell .admin-course-table td:nth-child(6),
+.admin-console-shell .admin-course-table td:nth-child(7),
+.admin-console-shell .admin-course-table td:nth-child(8) {
+  white-space: nowrap;
+}
+
+.admin-excel-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.admin-list-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.admin-excel-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-basis: 100%;
+  justify-content: flex-end;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.admin-table-page {
+  animation: adminPageEnter 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.admin-route-transition {
+  animation: adminPageEnter 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes adminPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-console-shell {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .admin-console-shell .dashboard-layout {
+    gap: 1rem !important;
+  }
+
+  .admin-console-shell .dashboard-sidebar {
+    width: 220px !important;
+    padding: 1rem !important;
+  }
+
+  .admin-console-shell .table {
+    min-width: 780px;
+    table-layout: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-console-shell .dashboard-layout {
+    flex-direction: column !important;
+  }
+
+  .admin-console-shell .dashboard-sidebar {
+    width: 100% !important;
+  }
+
+  .admin-excel-toolbar {
+    justify-content: flex-start;
+  }
+
+  .admin-excel-summary {
+    justify-content: flex-start;
+  }
+}
+
 .table tr:last-child td {
   border-bottom: none;
 }
@@ -496,10 +702,21 @@ img, video {
   font-size: 0.9rem;
 }
 
-.toast-item.success { border-left: 4px solid var(--success); }
-.toast-item.error { border-left: 4px solid var(--danger); }
-.toast-item.warning { border-left: 4px solid var(--warning); }
-.toast-item.info { border-left: 4px solid var(--info); }
+.toast-item.success {
+  border-left: 4px solid var(--success);
+}
+
+.toast-item.error {
+  border-left: 4px solid var(--danger);
+}
+
+.toast-item.warning {
+  border-left: 4px solid var(--warning);
+}
+
+.toast-item.info {
+  border-left: 4px solid var(--info);
+}
 
 /* Modal Backdrop & Dialog */
 .modal-backdrop {
@@ -515,7 +732,7 @@ img, video {
 }
 
 .modal-dialog {
-  margin-top: 420px;
+  margin-top: 0;
   background: var(--surface);
   border-radius: var(--radius-xl);
   width: 100%;
@@ -528,4 +745,40 @@ img, video {
 
 .modal-dialog.modal-lg {
   max-width: 800px;
+}
+
+.modal-dialog.admin-course-modal {
+  width: min(50vw, 1000px);
+  max-width: 1160px;
+  max-height: calc(100dvh - 80px);
+  margin: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-radius: var(--radius-xl);
+  clip-path: inset(0 round var(--radius-xl));
+}
+
+.modal-dialog.admin-course-modal::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-course-modal input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.admin-course-modal input[type="number"]::-webkit-inner-spin-button,
+.admin-course-modal input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+@media (max-width: 700px) {
+  .modal-dialog.admin-course-modal {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 1.25rem !important;
+  }
 }

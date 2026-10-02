@@ -207,7 +207,7 @@
 //   const isFree = !course.isPaid || course.price === 0;
 
 //   return (
-//     <div className="animate-fade-in" style={{ paddingBottom: "5rem" }}>
+//     <div className="animate-fade-in responsive-page course-detail-page" style={{ paddingBottom: "5rem" }}>
 //       {/* Course Hero Banner */}
 //       <section
 //         style={{
@@ -929,7 +929,7 @@ export const CourseDetailPage = () => {
   const isFree = !course.isPaid || course.price === 0;
 
   return (
-    <div className="animate-fade-in" style={{ paddingBottom: "5rem" }}>
+    <div className="animate-fade-in responsive-page course-detail-page" style={{ paddingBottom: "5rem" }}>
       {/* Course Hero Banner */}
       <section
         style={{

@@ -24,6 +24,9 @@ export const verifyUser = async (req, res, next) => {
     if (!user) {
       return next(new HandleError("User belonging to this token no longer exists.", 401));
     }
+    if (user.isActive === false) {
+      return next(new HandleError("This account is inactive.", 403));
+    }
 
     req.user = user;
     next();
@@ -60,6 +63,9 @@ export const optionalAuth = async (req, res, next) => {
       );
       const user = await User.findById(decodedData.id);
       if (user) {
+        if (user.isActive === false) {
+          return next(new HandleError("This account is inactive.", 403));
+        }
         req.user = user;
       }
     }

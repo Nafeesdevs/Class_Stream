@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -23,6 +24,29 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const desktopNavRef = useRef(null);
+  const [activePill, setActivePill] = useState({ left: 0, width: 0 });
+
+  const activeNavKey = location.pathname === "/courses" || location.pathname.startsWith("/courses/")
+    ? "courses"
+    : location.hash === "#categories"
+      ? "categories"
+      : location.hash === "#why-us"
+        ? "features"
+        : "home";
+
+  useLayoutEffect(() => {
+    const updateActivePill = () => {
+      const activeLink = desktopNavRef.current?.querySelector(`[data-nav-key="${activeNavKey}"]`);
+      if (activeLink) {
+        setActivePill({ left: activeLink.offsetLeft, width: activeLink.offsetWidth });
+      }
+    };
+
+    updateActivePill();
+    window.addEventListener("resize", updateActivePill);
+    return () => window.removeEventListener("resize", updateActivePill);
+  }, [activeNavKey]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -59,6 +83,7 @@ export const Navbar = () => {
 
   return (
     <header
+      className={mobileMenuOpen ? "mobile-nav-open" : ""}
       style={{
         position: "sticky",
         top: 0,
@@ -148,6 +173,7 @@ export const Navbar = () => {
 
         {/* Desktop Nav Links */}
         <nav
+          ref={desktopNavRef}
           className="desktop-nav"
           style={{
             display: "flex",
@@ -157,18 +183,35 @@ export const Navbar = () => {
             padding: "0.25rem 0.4rem",
             borderRadius: "var(--radius-full)",
             border: "1px solid rgba(15, 23, 42, 0.05)",
+            position: "relative",
           }}
         >
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              top: "4px",
+              bottom: "4px",
+              left: 0,
+              width: `${activePill.width}px`,
+              transform: `translateX(${activePill.left}px)`,
+              background: "#ffffff",
+              borderRadius: "var(--radius-full)",
+              boxShadow: "0 1px 3px rgba(15, 23, 42, 0.08)",
+              transition: "transform 320ms cubic-bezier(0.22, 1, 0.36, 1), width 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+              pointerEvents: "none",
+            }}
+          />
           <Link
             to="/"
+            data-nav-key="home"
             style={{
+              position: "relative",
               fontWeight: 600,
               fontSize: "0.875rem",
               padding: "0.4rem 0.95rem",
               borderRadius: "var(--radius-full)",
-              color: isActive("/") ? "var(--primary)" : "var(--text-body)",
-              backgroundColor: isActive("/") ? "#ffffff" : "transparent",
-              boxShadow: isActive("/") ? "0 1px 3px rgba(15, 23, 42, 0.08)" : "none",
+              color: activeNavKey === "home" ? "var(--primary)" : "var(--text-body)",
               transition: "all var(--transition-fast)",
             }}
           >
@@ -176,45 +219,49 @@ export const Navbar = () => {
           </Link>
           <Link
             to="/courses"
+            data-nav-key="courses"
             style={{
+              position: "relative",
               fontWeight: 600,
               fontSize: "0.875rem",
               padding: "0.4rem 0.95rem",
               borderRadius: "var(--radius-full)",
-              color: isActive("/courses") ? "var(--primary)" : "var(--text-body)",
-              backgroundColor: isActive("/courses") ? "#ffffff" : "transparent",
-              boxShadow: isActive("/courses") ? "0 1px 3px rgba(15, 23, 42, 0.08)" : "none",
+              color: activeNavKey === "courses" ? "var(--primary)" : "var(--text-body)",
               transition: "all var(--transition-fast)",
             }}
           >
             All Courses
           </Link>
-          <a
-            href="/#categories"
+          <Link
+            to="/#categories"
+            data-nav-key="categories"
             style={{
+              position: "relative",
               fontWeight: 600,
               fontSize: "0.875rem",
               padding: "0.4rem 0.95rem",
               borderRadius: "var(--radius-full)",
-              color: "var(--text-body)",
+              color: activeNavKey === "categories" ? "var(--primary)" : "var(--text-body)",
               transition: "all var(--transition-fast)",
             }}
           >
             Categories
-          </a>
-          <a
-            href="/#why-us"
+          </Link>
+          <Link
+            to="/#why-us"
+            data-nav-key="features"
             style={{
+              position: "relative",
               fontWeight: 600,
               fontSize: "0.875rem",
               padding: "0.4rem 0.95rem",
               borderRadius: "var(--radius-full)",
-              color: "var(--text-body)",
+              color: activeNavKey === "features" ? "var(--primary)" : "var(--text-body)",
               transition: "all var(--transition-fast)",
             }}
           >
             Features
-          </a>
+          </Link>
         </nav>
 
         {/* Desktop Actions */}
@@ -455,24 +502,29 @@ export const Navbar = () => {
             color: "var(--text-main)",
           }}
           aria-label="Toggle navigation menu"
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
         </button>
       </div>
 
-      {/* Mobile Menu Drawer */}
-      {mobileMenuOpen && (
-        <div
-          className="animate-fade-in"
-          style={{
-            background: "var(--surface)",
-            borderBottom: "1px solid var(--border)",
-            padding: "1.25rem 1.5rem",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-          }}
-        >
+      {createPortal(
+        <>
+          <button
+            className={`mobile-menu-backdrop${mobileMenuOpen ? " mobile-nav-open" : ""}`}
+            type="button"
+            aria-label="Close navigation menu"
+            aria-hidden={!mobileMenuOpen}
+            tabIndex={mobileMenuOpen ? 0 : -1}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          <div
+            className={`mobile-menu-drawer${mobileMenuOpen ? " mobile-nav-open" : ""}`}
+            aria-hidden={!mobileMenuOpen}
+            onClick={() => setMobileMenuOpen(false)}
+            style={{ padding: "1.25rem 1.5rem" }}
+          >
           <Link
             to="/"
             style={{
@@ -495,8 +547,9 @@ export const Navbar = () => {
           >
             All Courses
           </Link>
-          <a
-            href="/#categories"
+          <Link
+            to="/#categories"
+            onClick={() => setMobileMenuOpen(false)}
             style={{
               padding: "0.6rem 0",
               fontWeight: 600,
@@ -505,10 +558,22 @@ export const Navbar = () => {
             }}
           >
             Categories
-          </a>
+          </Link>
+          <Link
+            to="/#why-us"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              padding: "0.6rem 0",
+              fontWeight: 600,
+              fontSize: "1.05rem",
+              color: "var(--text-main)",
+            }}
+          >
+            Features
+          </Link>
 
           {isAuthenticated ? (
-            <div style={{ paddingTop: "0.75rem", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div className="mobile-menu-account" style={{ paddingTop: "0.75rem", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               <div style={{ fontWeight: 700, color: "var(--text-main)" }}>
                 Signed in as {user?.name}
               </div>
@@ -528,7 +593,7 @@ export const Navbar = () => {
               </button>
             </div>
           ) : (
-            <div style={{ paddingTop: "0.75rem", borderTop: "1px solid var(--border)", display: "flex", gap: "0.75rem" }}>
+            <div className="mobile-menu-account" style={{ paddingTop: "0.75rem", borderTop: "1px solid var(--border)", display: "flex", gap: "0.75rem" }}>
               <Link to="/login" className="btn btn-outline" style={{ flex: 1 }}>
                 Login
               </Link>
@@ -537,7 +602,9 @@ export const Navbar = () => {
               </Link>
             </div>
           )}
-        </div>
+          </div>
+        </>,
+        document.body,
       )}
     </header>
   );

@@ -1,5 +1,5 @@
-import React from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { Outlet, NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import {
@@ -10,14 +10,27 @@ import {
   LogOut,
   Compass,
   GraduationCap,
+  Menu,
+  X,
 } from "lucide-react";
 
 export const UserDashboardLayout = () => {
   const { user, logout } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.pathname]);
 
   const handleLogout = async () => {
+    setMobileMenuOpen(false);
     await logout();
     toast.success("Successfully logged out");
     navigate("/");
@@ -38,7 +51,15 @@ export const UserDashboardLayout = () => {
   });
 
   return (
-    <div className="container" style={{ paddingTop: "2rem", paddingBottom: "5rem" }}>
+    <div className={`container user-dashboard-shell${mobileMenuOpen ? " admin-mobile-nav-open" : ""}`} style={{ paddingTop: "2rem", paddingBottom: "5rem" }}>
+      <button
+        className="mobile-menu-backdrop"
+        type="button"
+        aria-label="Close student menu"
+        aria-hidden={!mobileMenuOpen}
+        tabIndex={mobileMenuOpen ? 0 : -1}
+        onClick={() => setMobileMenuOpen(false)}
+      />
       <div
         className="dashboard-layout"
         style={{
@@ -60,8 +81,29 @@ export const UserDashboardLayout = () => {
             boxShadow: "var(--shadow-xs)",
           }}
         >
+          <div className="admin-mobile-header">
+            <Link to="/" className="admin-mobile-brand" aria-label="ClassStream Student Dashboard">
+              <span className="admin-mobile-brand-icon"><GraduationCap size={21} /></span>
+              <span className="admin-mobile-brand-copy">
+                <strong>ClassStream</strong>
+                <small>STUDENT DASHBOARD</small>
+              </span>
+            </Link>
+            <button
+              className="admin-mobile-menu-toggle"
+              type="button"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="student-mobile-navigation"
+              aria-label={mobileMenuOpen ? "Close student menu" : "Open student menu"}
+              onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
           {/* User Profile Summary */}
           <div
+            className="student-sidebar-profile"
             style={{
               display: "flex",
               alignItems: "center",
@@ -115,7 +157,7 @@ export const UserDashboardLayout = () => {
           </div>
 
           {/* Navigation Links */}
-          <nav style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <nav id="student-mobile-navigation" className="dashboard-sidebar-navigation" onClick={() => setMobileMenuOpen(false)} style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
             <NavLink to="/dashboard" end style={navItemStyle}>
               <LayoutDashboard size={18} />
               <span>Overview</span>
@@ -136,37 +178,37 @@ export const UserDashboardLayout = () => {
               <span>Profile Settings</span>
             </NavLink>
 
-            <div style={{ height: "1px", background: "var(--border-light)", margin: "0.75rem 0" }} />
-
             <NavLink to="/courses" style={navItemStyle}>
               <Compass size={18} />
               <span>Explore Courses</span>
             </NavLink>
 
-            <button
-              onClick={handleLogout}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                padding: "0.75rem 1rem",
-                borderRadius: "var(--radius-md)",
-                fontSize: "0.925rem",
-                fontWeight: 500,
-                color: "var(--danger)",
-                backgroundColor: "transparent",
-                border: "none",
-                cursor: "pointer",
-                textAlign: "left",
-                width: "100%",
-                transition: "all var(--transition-fast)",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--danger-bg)")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-            >
-              <LogOut size={18} />
-              <span>Sign Out</span>
-            </button>
+            <div className="dashboard-sidebar-footer">
+              <button
+                onClick={handleLogout}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: "0.925rem",
+                  fontWeight: 500,
+                  color: "var(--danger)",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                  transition: "all var(--transition-fast)",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--danger-bg)")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              >
+                <LogOut size={18} />
+                <span>Sign Out</span>
+              </button>
+            </div>
           </nav>
         </aside>
 

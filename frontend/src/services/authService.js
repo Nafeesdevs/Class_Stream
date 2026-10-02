@@ -31,6 +31,11 @@ export const authService = {
     return response.data;
   },
 
+  async createAdminUser(userData) {
+    const response = await api.post("/admin/users", userData);
+    return response.data;
+  },
+
   async updateUser(id, data) {
     const response = await api.put(`/user/${id}`, data);
     return response.data;

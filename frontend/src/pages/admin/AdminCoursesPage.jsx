@@ -1274,11 +1274,13 @@
 
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import courseService from "../../services/courseService";
 import categoryService from "../../services/categoryService";
 import classService from "../../services/classService";
 import { useToast } from "../../context/ToastContext";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import AdminExcelToolbar from "../../components/common/AdminExcelToolbar";
 import {
   Plus,
   Edit2,
@@ -1291,6 +1293,7 @@ import {
   Video,
   FileVideo,
   Link as LinkIcon,
+  Search,
 } from "lucide-react";
 
 export const AdminCoursesPage = () => {
@@ -1300,6 +1303,10 @@ export const AdminCoursesPage = () => {
   const [categories, setCategories] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [updatingStatusId, setUpdatingStatusId] = useState(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1360,7 +1367,7 @@ export const AdminCoursesPage = () => {
     try {
       setLoading(true);
       const [courseRes, catRes, classRes] = await Promise.all([
-        courseService.getAllCourses(),
+        courseService.getAllAdminCourses(),
         categoryService.getAllCategories(),
         classService.getAllClasses(),
       ]);
@@ -1377,6 +1384,67 @@ export const AdminCoursesPage = () => {
   useEffect(() => {
     fetchCourses();
   }, []);
+
+  const filteredCourses = courses.filter((course) => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const matchesSearch = !normalizedQuery || [
+      course.courseName,
+      course.instructor,
+      course.courseCategory,
+      course.courseClass,
+    ].some((value) => value?.toLowerCase().includes(normalizedQuery));
+    const matchesCategory = !categoryFilter || course.courseCategory === categoryFilter;
+    const matchesStatus = statusFilter === "all" || (course.isActive !== false) === (statusFilter === "active");
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  const toggleCourseStatus = async (course) => {
+    try {
+      setUpdatingStatusId(course._id);
+      const data = new FormData();
+      data.append("isActive", course.isActive === false ? "true" : "false");
+      const response = await courseService.updateCourse(course._id, data);
+      setCourses((current) => current.map((item) => item._id === course._id ? response.course : item));
+      toast.success(`Course set to ${response.course.isActive ? "active" : "inactive"}.`);
+    } catch (err) {
+      toast.error(err.formattedMessage || "Failed to update course status.");
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  };
+
+  const importCourses = async (rows) => {
+    let imported = 0;
+    const existingNames = new Set(courses.map((course) => course.courseName.toLowerCase()));
+    for (const row of rows) {
+      const courseName = String(row.courseName || row["Course Name"] || "").trim();
+      const courseDescription = String(row.courseDescription || row.Description || "").trim();
+      const courseCategory = String(row.courseCategory || row.Category || "").trim();
+      const courseClass = String(row.courseClass || row.Class || "").trim();
+      if (!courseName || !courseDescription || !courseCategory || !courseClass || existingNames.has(courseName.toLowerCase())) continue;
+
+      const data = new FormData();
+      data.append("courseName", courseName);
+      data.append("courseDescription", courseDescription);
+      data.append("courseCategory", courseCategory);
+      data.append("courseClass", courseClass);
+      data.append("price", String(Number(row.price) || 0));
+      data.append("originalPrice", String(Number(row.originalPrice) || 0));
+      data.append("isPaid", String(row.isPaid === true || String(row.isPaid).toLowerCase() === "true"));
+      data.append("instructor", String(row.instructor || "Principal Faculty"));
+      data.append("instructorTitle", String(row.instructorTitle || "Lead Architect"));
+      data.append("level", String(row.level || "Intermediate"));
+      data.append("duration", String(row.duration || "15h 00m"));
+      data.append("isActive", String(row.isActive === false || String(row.isActive).toLowerCase() === "false" ? false : true));
+      data.append("courseVideo", String(row.courseVideo || "[]"));
+      await courseService.createCourse(data);
+      existingNames.add(courseName.toLowerCase());
+      imported += 1;
+    }
+    await fetchCourses();
+    toast.success(`Imported ${imported} courses. Media files must be added from Edit Course.`);
+    return `Imported ${imported} courses`;
+  };
 
   const openCreateModal = () => {
     setEditingCourse(null);
@@ -1585,7 +1653,7 @@ export const AdminCoursesPage = () => {
   };
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in responsive-page admin-courses-page">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
         <div>
           <h1 style={{ fontSize: "1.75rem", marginBottom: "0.4rem" }}>Manage Courses</h1>
@@ -1594,17 +1662,64 @@ export const AdminCoursesPage = () => {
           </p>
         </div>
 
-        <button onClick={openCreateModal} className="btn btn-primary btn-sm">
-          <Plus size={16} /> Add New Course
-        </button>
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.65rem" }}>
+          <AdminExcelToolbar
+            rows={courses.map((course) => ({
+              courseName: course.courseName,
+              courseDescription: course.courseDescription,
+              courseCategory: course.courseCategory,
+              courseClass: course.courseClass,
+              price: course.price,
+              originalPrice: course.originalPrice,
+              isPaid: course.isPaid,
+              instructor: course.instructor,
+              instructorTitle: course.instructorTitle,
+              level: course.level,
+              duration: course.duration,
+              isActive: course.isActive !== false,
+              courseVideo: JSON.stringify((course.courseVideo || []).map(({ title, duration, accessType, url, public_id }) => ({ title, duration, accessType, url, public_id }))),
+            }))}
+            sheetName="Courses"
+            fileName="classstream-courses"
+            onImport={importCourses}
+            onError={(error) => toast.error(error.formattedMessage || error.message || "Could not import courses.")}
+          />
+          <button onClick={openCreateModal} className="btn btn-primary btn-sm">
+            <Plus size={16} /> Add New Course
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", padding: "1rem", marginBottom: "1.25rem", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)" }}>
+        <div className="input-with-icon" style={{ flex: "1 1 260px", minWidth: 0 }}>
+          <Search className="input-icon-left" size={17} />
+          <input
+            type="search"
+            className="form-control"
+            placeholder="Search courses, instructors..."
+            aria-label="Search courses"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            style={{ paddingLeft: "2.5rem" }}
+          />
+        </div>
+        <select className="form-control" aria-label="Filter courses by category" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} style={{ flex: "0 1 220px" }}>
+          <option value="">All Categories</option>
+          {categories.map((category) => <option key={category._id} value={category.categoryName}>{category.categoryName}</option>)}
+        </select>
+        <select className="form-control" aria-label="Filter courses by status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} style={{ flex: "0 1 160px" }}>
+          <option value="all">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
       </div>
 
       {/* Courses List Table */}
       {loading ? (
         <div className="skeleton" style={{ width: "100%", height: "300px", borderRadius: "var(--radius-lg)" }} />
-      ) : courses.length > 0 ? (
+      ) : filteredCourses.length > 0 ? (
         <div className="table-responsive">
-          <table className="table">
+          <table className="table admin-course-table">
             <thead>
               <tr>
                 <th>Thumbnail</th>
@@ -1613,11 +1728,12 @@ export const AdminCoursesPage = () => {
                 <th>Class</th>
                 <th>Price</th>
                 <th>Videos</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {courses.map((course) => {
+              {filteredCourses.map((course) => {
                 const img =
                   course.courseImage?.[0]?.url ||
                   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&auto=format&fit=crop&q=80";
@@ -1638,7 +1754,7 @@ export const AdminCoursesPage = () => {
                       </div>
                     </td>
                     <td>
-                      <span className="badge badge-primary">{course.courseCategory}</span>
+                      <span className="badge badge-primary admin-course-category">{course.courseCategory}</span>
                     </td>
                     <td>{course.courseClass}</td>
                     <td style={{ fontWeight: 700 }}>
@@ -1648,6 +1764,25 @@ export const AdminCoursesPage = () => {
                       <span className="badge badge-gray" style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
                         <PlayCircle size={12} /> {course.courseVideo?.length || 0}
                       </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        onClick={() => toggleCourseStatus(course)}
+                        disabled={updatingStatusId === course._id}
+                        aria-label={`Set ${course.courseName} ${course.isActive === false ? "active" : "inactive"}`}
+                        aria-pressed={course.isActive !== false}
+                        className="btn btn-sm"
+                        style={{
+                          minWidth: "88px",
+                          background: course.isActive === false ? "var(--danger-bg)" : "var(--success-bg)",
+                          border: `1px solid ${course.isActive === false ? "#fecaca" : "var(--success-border)"}`,
+                          color: course.isActive === false ? "var(--danger)" : "var(--success)",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {updatingStatusId === course._id ? "Saving..." : course.isActive === false ? "Inactive" : "Active"}
+                      </button>
                     </td>
                     <td>
                       <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -1677,16 +1812,16 @@ export const AdminCoursesPage = () => {
         </div>
       ) : (
         <div className="empty-state">
-          <h4>No Courses Published Yet</h4>
-          <p style={{ marginTop: "0.5rem" }}>Click "Add New Course" to upload and publish your first educational track.</p>
+          <h4>{courses.length ? "No Matching Courses" : "No Courses Published Yet"}</h4>
+          <p style={{ marginTop: "0.5rem" }}>{courses.length ? "Try changing the search or filters." : "Click \"Add New Course\" to upload and publish your first educational track."}</p>
         </div>
       )}
 
       {/* Create / Edit Course Modal */}
-      {isModalOpen && (
+      {isModalOpen && createPortal(
         <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}>
           <div
-            className="modal-dialog modal-lg animate-modal"
+            className="modal-dialog modal-lg admin-course-modal animate-modal"
             onClick={(e) => e.stopPropagation()}
             style={{ padding: "2rem" }}
           >
@@ -1966,7 +2101,8 @@ export const AdminCoursesPage = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Delete Confirmation Modal */}

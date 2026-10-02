@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import courseService from "../../services/courseService";
-import { useAuth } from "../../context/AuthContext";
 import EmptyState from "../../components/common/EmptyState";
 import { CourseSkeletonCard } from "../../components/common/LoadingSkeleton";
-import { BookOpen, PlayCircle, Clock, CheckCircle2 } from "lucide-react";
+import { BookOpen, PlayCircle } from "lucide-react";
 
 export const MyLearningPage = () => {
-  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +27,7 @@ export const MyLearningPage = () => {
   }, []);
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in responsive-page my-learning-page">
       <div style={{ marginBottom: "2rem" }}>
         <h1 style={{ fontSize: "1.75rem", marginBottom: "0.5rem" }}>My Learning</h1>
         <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
@@ -39,27 +37,27 @@ export const MyLearningPage = () => {
 
       {loading ? (
         <div className="grid-3">
-          <CourseSkeletonCard />
-          <CourseSkeletonCard />
+          <CourseSkeletonCard key="learning-skeleton-one" />
+          <CourseSkeletonCard key="learning-skeleton-two" />
         </div>
       ) : courses.length > 0 ? (
         <div className="grid-3">
-          {courses.map((course) => {
+          {courses.map((enrollment) => {
+            const course = enrollment.course || enrollment;
             const thumbnail =
               course.courseImage?.[0]?.url ||
               "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80";
 
-            // Find user's progress for this course
-            const enrollment = user?.enrolledCourses?.find(
-              (e) => (e.course?._id || e.course || e) === course._id
-            );
             const totalLessons = course.courseVideo?.length || 1;
             const completedCount = enrollment?.completedLessons?.length || 0;
             const percent = Math.min(100, Math.round((completedCount / totalLessons) * 100));
+            const completedIndexes = new Set((enrollment?.completedLessons || []).map(Number));
+            const firstUncompletedIndex = course.courseVideo?.findIndex((_, index) => !completedIndexes.has(index)) ?? -1;
+            const nextLessonIndex = firstUncompletedIndex < 0 ? totalLessons - 1 : firstUncompletedIndex;
 
             return (
               <div
-                key={course._id}
+                key={enrollment.enrollmentId || course._id}
                 className="card card-hover"
                 style={{ display: "flex", flexDirection: "column" }}
               >
@@ -107,7 +105,7 @@ export const MyLearningPage = () => {
                   </div>
 
                   <Link
-                    to={`/learn/${course._id}`}
+                    to={`/learn/${course._id}?lesson=${nextLessonIndex}`}
                     className="btn btn-primary btn-sm"
                     style={{ width: "100%", gap: "0.5rem" }}
                   >

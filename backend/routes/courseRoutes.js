@@ -3,6 +3,7 @@ import upload from "../config/multer.js";
 import {
   createCourse,
   getAllCourses,
+  getAllAdminCourses,
   getCourseById,
   updateCourse,
   deleteCourse,
@@ -28,6 +29,8 @@ router
     ]),
     createCourse
   );
+
+router.get("/admin/courses", verifyUser, authorizeRoles("admin"), getAllAdminCourses);
 
 // Student My Courses
 router.get("/my-courses", verifyUser, getMyCourses);

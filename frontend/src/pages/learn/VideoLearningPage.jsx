@@ -22,7 +22,8 @@ import {
 export const VideoLearningPage = () => {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const lessonParam = parseInt(searchParams.get("lesson") || "0", 10);
+  const lessonQuery = searchParams.get("lesson");
+  const lessonParam = lessonQuery === null ? null : Number.parseInt(lessonQuery, 10);
 
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -46,14 +47,30 @@ export const VideoLearningPage = () => {
         if (data?.course) {
           setCourse(data.course);
 
-          // Find user's existing progress for this course if enrolled
-          if (user?.enrolledCourses) {
-            const enrollment = user.enrolledCourses.find(
-              (e) => (e.course?._id || e.course || e) === id
-            );
-            if (enrollment?.completedLessons) {
-              setCompletedLessons(enrollment.completedLessons);
-            }
+          const enrollment = user?.enrolledCourses?.find(
+            (item) => String(item.course?._id || item.course || item) === String(id)
+          );
+          const savedLessons = data.userProgress?.completedLessons ?? enrollment?.completedLessons ?? [];
+          const normalizedCompletedLessons = savedLessons.map(Number).filter(Number.isInteger);
+          setCompletedLessons(normalizedCompletedLessons);
+
+          const requestedLesson = new URLSearchParams(window.location.search).get("lesson");
+          const requestedIndex = Number.parseInt(requestedLesson, 10);
+          const hasValidRequestedLesson = requestedLesson !== null &&
+            Number.isInteger(requestedIndex) &&
+            requestedIndex >= 0 &&
+            requestedIndex < data.course.courseVideo.length;
+          const completedIndexes = new Set(normalizedCompletedLessons);
+          const firstUncompletedIndex = data.course.courseVideo.findIndex((_, index) => !completedIndexes.has(index));
+          const initialLessonIndex = hasValidRequestedLesson
+            ? requestedIndex
+            : firstUncompletedIndex < 0
+              ? Math.max(data.course.courseVideo.length - 1, 0)
+              : firstUncompletedIndex;
+
+          setCurrentLessonIndex(initialLessonIndex);
+          if (!hasValidRequestedLesson) {
+            setSearchParams({ lesson: initialLessonIndex.toString() }, { replace: true });
           }
         }
       } catch (err) {
@@ -67,7 +84,7 @@ export const VideoLearningPage = () => {
 
   // Synchronize active lesson when searchParams change
   useEffect(() => {
-    if (!isNaN(lessonParam) && course?.courseVideo && lessonParam < course.courseVideo.length) {
+    if (Number.isInteger(lessonParam) && lessonParam >= 0 && course?.courseVideo && lessonParam < course.courseVideo.length) {
       handleSelectLesson(lessonParam);
     }
   }, [lessonParam, course]);
@@ -104,22 +121,30 @@ export const VideoLearningPage = () => {
     }
   };
 
-  // Toggle mark lesson as complete
-  const handleToggleComplete = async (idx) => {
-    const isDone = completedLessons.includes(idx);
-    const newCompleted = isDone
-      ? completedLessons.filter((i) => i !== idx)
-      : [...completedLessons, idx];
+  const handleVideoEnded = async () => {
+    const lessonIndex = currentLessonIndex;
+    if (completedLessons.includes(lessonIndex)) return;
 
-    setCompletedLessons(newCompleted);
+    const isEnrolled = user?.enrolledCourses?.some(
+      (enrollment) => (enrollment.course?._id || enrollment.course || enrollment) === id
+    );
 
-    if (isAuthenticated) {
+    if (isAuthenticated && isEnrolled) {
       try {
-        await courseService.updateProgress(id, idx, !isDone);
-        toast.success(isDone ? "Lesson marked as incomplete." : "Lesson marked as completed! 🎉");
+        const response = await courseService.updateProgress(id, lessonIndex, true);
+        setCompletedLessons(response.progress?.completedLessons || [
+          ...completedLessons,
+          lessonIndex,
+        ]);
+        toast.success("Lesson completed!");
       } catch (err) {
-        // Silent fail or warning
+        toast.error(err.formattedMessage || "Could not save lesson completion.");
+        return;
       }
+    } else {
+      setCompletedLessons((current) => current.includes(lessonIndex)
+        ? current
+        : [...current, lessonIndex]);
     }
   };
 
@@ -153,7 +178,7 @@ export const VideoLearningPage = () => {
   const progressPercentage = Math.round((completedLessons.length / course.courseVideo.length) * 100);
 
   return (
-    <div style={{ background: "#070a13", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="video-learning-page" style={{ background: "#070a13", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       {/* Mini top progress indicator line */}
       <div style={{ width: "100%", height: "3px", background: "rgba(255, 255, 255, 0.08)", position: "relative" }}>
         <div
@@ -264,8 +289,10 @@ export const VideoLearningPage = () => {
               key={currentLesson.url}
               src={currentLesson.url}
               controls
+              controlsList="nodownload"
               autoPlay
               playsInline
+              onEnded={handleVideoEnded}
               style={{
                 width: "100%",
                 height: "100%",
@@ -312,30 +339,31 @@ export const VideoLearningPage = () => {
 
               {/* Navigation and Completion Buttons */}
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <button
-                  onClick={() => handleToggleComplete(currentLessonIndex)}
-                  className="btn btn-sm"
+                <span
+                  role="status"
+                  aria-live="polite"
                   style={{
                     background: completedLessons.includes(currentLessonIndex)
                       ? "var(--success)"
                       : "rgba(255, 255, 255, 0.1)",
                     color: "#ffffff",
-                    border: "none",
+                    borderRadius: "var(--radius-md)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.625rem 1.25rem",
+                    fontWeight: 600,
+                    lineHeight: 1.25,
                   }}
                 >
                   <CheckCircle size={16} />
-                  <span>
-                    {completedLessons.includes(currentLessonIndex)
-                      ? "Completed"
-                      : "Mark Complete"}
-                  </span>
-                </button>
+                  {completedLessons.includes(currentLessonIndex) ? "Completed" : "In Progress"}
+                </span>
 
                 <button
                   disabled={isFirstLesson}
                   onClick={() => handleSelectLesson(currentLessonIndex - 1)}
-                  className="btn btn-outline btn-sm"
-                  style={{ color: "#ffffff", borderColor: "rgba(255, 255, 255, 0.2)" }}
+                  className="btn btn-outline btn-sm video-lesson-prev"
                 >
                   <ChevronLeft size={16} /> Prev
                 </button>
@@ -344,6 +372,7 @@ export const VideoLearningPage = () => {
                   disabled={isLastLesson}
                   onClick={() => handleSelectLesson(currentLessonIndex + 1)}
                   className="btn btn-primary btn-sm"
+                  style={{ opacity: 1 }}
                 >
                   Next <ChevronRight size={16} />
                 </button>

@@ -2,6 +2,7 @@ import express from "express";
 import {
   deleteUser,
   getAllUser,
+  createAdminManagedUser,
   getUserById,
   loginUser,
   registerUser,
@@ -25,6 +26,7 @@ router.put("/me/update", verifyUser, updateProfile);
 
 // Admin User Management
 router.get("/users", verifyUser, authorizeRoles("admin"), getAllUser);
+router.post("/admin/users", verifyUser, authorizeRoles("admin"), createAdminManagedUser);
 router
   .route("/user/:id")
   .get(verifyUser, getUserById)

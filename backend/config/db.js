@@ -36,6 +36,8 @@ const SAMPLE_VIDEOS = [
   },
 ];
 
+let mongoMemoryServer;
+
 export const seedInitialData = async () => {
   try {
     // 1. Seed Admin & Demo Student
@@ -336,19 +338,28 @@ export const connectDB = async () => {
     const conn = await mongoose.connect(dbUrl, {
       serverSelectionTimeoutMS: 2000,
     });
+    await mongoose.connection.db.admin().ping();
     console.log("MongoDB Connected with server:", conn.connection.host);
     await seedInitialData();
   } catch (error) {
-    console.warn("Local MongoDB connection timed out or not running. Starting MongoMemoryServer fallback...");
+    if (process.env.NODE_ENV === "production") {
+      throw error;
+    }
+
+    console.warn("MongoDB connection unavailable:", error.message);
+    console.warn("Starting MongoMemoryServer fallback...");
     try {
+      await mongoose.disconnect();
       const { MongoMemoryServer } = await import("mongodb-memory-server");
-      const mongod = await MongoMemoryServer.create();
-      const uri = mongod.getUri();
+      mongoMemoryServer = await MongoMemoryServer.create();
+      const uri = mongoMemoryServer.getUri();
       const conn = await mongoose.connect(uri);
+      await mongoose.connection.db.admin().ping();
       console.log("MongoDB In-Memory Connected at:", conn.connection.host);
       await seedInitialData();
     } catch (mmsErr) {
       console.error("Could not start MongoDB memory server:", mmsErr.message);
+      throw mmsErr;
     }
   }
 };

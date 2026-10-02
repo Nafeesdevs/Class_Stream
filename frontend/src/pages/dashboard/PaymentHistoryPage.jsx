@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import paymentService from "../../services/paymentService";
-import { CreditCard, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { CreditCard, Search } from "lucide-react";
 import EmptyState from "../../components/common/EmptyState";
 
 export const PaymentHistoryPage = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -24,8 +26,19 @@ export const PaymentHistoryPage = () => {
     fetchPayments();
   }, []);
 
+  const filteredPayments = payments.filter((payment) => {
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSearch = !query || [
+      payment.razorpayOrderId,
+      payment.razorpayPaymentId,
+      payment.course?.courseName,
+    ].some((value) => value?.toLowerCase().includes(query));
+    return matchesSearch && (statusFilter === "all" || payment.status === statusFilter);
+  });
+  const paymentStatuses = [...new Set(payments.map((payment) => payment.status).filter(Boolean))];
+
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in responsive-page payment-history-page">
       <div style={{ marginBottom: "2rem" }}>
         <h1 style={{ fontSize: "1.75rem", marginBottom: "0.5rem" }}>Payment History & Receipts</h1>
         <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
@@ -33,9 +46,36 @@ export const PaymentHistoryPage = () => {
         </p>
       </div>
 
+      {!loading && payments.length > 0 && (
+        <div className="admin-list-toolbar" style={{ marginBottom: "1.25rem" }}>
+          <div className="input-with-icon" style={{ flex: "1 1 280px", minWidth: 0 }}>
+            <Search className="input-icon-left" size={17} />
+            <input
+              className="form-control"
+              type="search"
+              aria-label="Search payment history"
+              placeholder="Search order, payment, or course..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              style={{ paddingLeft: "2.5rem" }}
+            />
+          </div>
+          <select
+            className="form-control"
+            aria-label="Filter payment history by status"
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+            style={{ flex: "0 1 180px" }}
+          >
+            <option value="all">All Statuses</option>
+            {paymentStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
+          </select>
+        </div>
+      )}
+
       {loading ? (
         <div className="skeleton" style={{ width: "100%", height: "240px", borderRadius: "var(--radius-lg)" }} />
-      ) : payments.length > 0 ? (
+      ) : filteredPayments.length > 0 ? (
         <div className="table-responsive">
           <table className="table">
             <thead>
@@ -49,7 +89,7 @@ export const PaymentHistoryPage = () => {
               </tr>
             </thead>
             <tbody>
-              {payments.map((p) => (
+              {filteredPayments.map((p) => (
                 <tr key={p._id}>
                   <td style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "var(--text-muted)" }}>
                     {p.razorpayOrderId}
@@ -64,10 +104,12 @@ export const PaymentHistoryPage = () => {
                     ₹{p.amount} {p.currency}
                   </td>
                   <td style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-                    {new Date(p.createdAt).toLocaleDateString("en-IN", {
+                    {new Date(p.createdAt).toLocaleString("en-IN", {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
                     })}
                   </td>
                   <td>
@@ -85,6 +127,11 @@ export const PaymentHistoryPage = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      ) : payments.length > 0 ? (
+        <div className="empty-state">
+          <h4>No Matching Payments</h4>
+          <p>Try changing the search or status filter.</p>
         </div>
       ) : (
         <EmptyState

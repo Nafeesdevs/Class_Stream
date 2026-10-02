@@ -26,7 +26,7 @@ export const ProfilePage = () => {
   };
 
   return (
-    <div className="animate-fade-in" style={{ maxWidth: "680px" }}>
+    <div className="animate-fade-in responsive-page profile-page" style={{ maxWidth: "680px" }}>
       <div style={{ marginBottom: "2rem" }}>
         <h1 style={{ fontSize: "1.75rem", marginBottom: "0.5rem" }}>Profile Settings</h1>
         <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>

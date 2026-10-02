@@ -51,7 +51,7 @@ export const updateClass = async (req, res, next) => {
       id,
       { className: className.trim() },
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true,
       }
     );

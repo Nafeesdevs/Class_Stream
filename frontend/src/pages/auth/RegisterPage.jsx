@@ -53,6 +53,7 @@ export const RegisterPage = () => {
 
   return (
     <div
+      className="auth-split-wrapper register-page"
       style={{
         minHeight: "calc(100vh - 72px)",
         display: "flex",

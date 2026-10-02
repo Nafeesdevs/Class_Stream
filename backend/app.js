@@ -7,6 +7,7 @@ import classs from "./routes/classRoutes.js";
 import category from "./routes/categoryRoute.js";
 import course from "./routes/courseRoutes.js";
 import payment from "./routes/paymentRoutes.js";
+import growthHighlight from "./routes/growthHighlightRoutes.js";
 import errorhandler from "./middleware/error.js";
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api/v1", category);
 app.use("/api/v1", classs);
 app.use("/api/v1", course);
 app.use("/api/v1", payment);
+app.use("/api/v1", growthHighlight);
 
 // Centralized Error Handling Middleware
 app.use(errorhandler);
