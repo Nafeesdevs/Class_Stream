@@ -1,4 +1,6 @@
 @import "./styles/variables.css";
 @import "./styles/animations.css";
 @import "./styles/global.css";
+@import "./styles/course-card.css";
 @import "./styles/responsive.css";
+@import "./styles/hero-fx.css";

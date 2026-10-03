@@ -1,6 +1,0 @@
-{
-  "name": "Class Stream - E-Learning & Course Platform",
-  "description": "An educational course streaming platform with high quality video learning, course catalog, interactive lessons, user & admin dashboards, and Razorpay test payment integration.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

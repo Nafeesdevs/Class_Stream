@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { GraduationCap, Mail, Phone, MapPin, Heart, ArrowUpRight } from "lucide-react";
 
+
 export const Footer = () => {
   return (
     <footer
@@ -156,9 +157,14 @@ export const Footer = () => {
             &copy; {new Date().getFullYear()} Class Stream Education Inc. All rights reserved.
           </div>
           <div style={{ display: "flex", gap: "1.5rem" }}>
-            <span style={{ cursor: "pointer" }}>Privacy Policy</span>
-            <span style={{ cursor: "pointer" }}>Terms of Service</span>
-            <span style={{ cursor: "pointer" }}>Cookie Preferences</span>
+
+            <Link to="/privacy" style={{ cursor: "pointer" }}>
+  Privacy Policy
+</Link>
+         <Link to="/terms" style={{ cursor: "pointer" }}>
+  Terms of Service
+</Link>
+            {/* <span style={{ cursor: "pointer" }}>Cookie Preferences</span> */}
           </div>
         </div>
       </div>

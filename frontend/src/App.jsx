@@ -41,6 +41,8 @@ import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminPaymentsPage from "./pages/admin/AdminPaymentsPage";
 import AdminEnrollmentsPage from "./pages/admin/AdminEnrollmentsPage";
 import AdminGrowthHighlightsPage from "./pages/admin/AdminGrowthHighlightsPage";
+import Privacy from "./pages/common/privacy/Privacy";
+import Terms from "./pages/common/terms/Terms";
 
 // Public site shell with Navbar and Footer
 const PublicLayout = () => {
@@ -77,6 +79,8 @@ export default function App() {
               <Route path="/courses/:id" element={<CourseDetailPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/privacy" element={<Privacy/>}/>
+              <Route path="/terms" element={<Terms/>}/>
 
             </Route>
 

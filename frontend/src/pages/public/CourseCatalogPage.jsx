@@ -257,15 +257,28 @@ export const CourseCatalogPage = () => {
         {/* Desktop Sidebar Filters */}
         <aside
           className="catalog-sidebar"
+          // style={{
+          //   width: "280px",
+          //   flexShrink: 0,
+          //   background: "var(--surface)",
+          //   padding: "1.5rem",
+          //   borderRadius: "var(--radius-lg)",
+          //   border: "1px solid var(--border)",
+          //   boxShadow: "var(--shadow-xs)",
+          // }}
           style={{
-            width: "280px",
-            flexShrink: 0,
-            background: "var(--surface)",
-            padding: "1.5rem",
-            borderRadius: "var(--radius-lg)",
-            border: "1px solid var(--border)",
-            boxShadow: "var(--shadow-xs)",
-          }}
+  width: "280px",
+  flexShrink: 0,
+  background: "var(--surface)",
+  padding: "1.5rem",
+  borderRadius: "var(--radius-lg)",
+  border: "1px solid var(--border)",
+  boxShadow: "var(--shadow-xs)",
+  position: "sticky",
+  top: "90px",
+  alignSelf: "flex-start",
+  height: "fit-content",
+}}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem", paddingBottom: "0.85rem", borderBottom: "1px solid var(--border-light)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, fontSize: "1.05rem" }}>
