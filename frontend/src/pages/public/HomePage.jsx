@@ -1789,7 +1789,7 @@ export const HomePage = () => {
                 className="hover-elevate"
                 style={{
                   padding: "1.25rem 1rem",
-                  borderRadius: "var(--radius-lg)",
+                  // borderRadius: "var(--radius-lg)",
                   background: "#ffffff",
                   border: "1px solid var(--border)",
                   boxShadow: "var(--shadow-xs)",
