@@ -107,7 +107,7 @@ export const seedInitialData = async () => {
         categoryName: "Cloud & DevOps",
         categoryImage: [
           {
-            imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=80",
+            imageUrl: "https://images.unsplash.com/-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=8",
             public_id: "seed_cloud",
           },
         ],
