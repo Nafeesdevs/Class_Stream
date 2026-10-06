@@ -2127,7 +2127,7 @@ import courseService from "../../services/courseService";
 import categoryService from "../../services/categoryService";
 import classService from "../../services/classService";
 import { useToast } from "../../context/ToastContext";
-import ConfirmModal from "../../components/common/ConfirmModal";
+// import ConfirmModal from "../../components/common/ConfirmModal";
 import AdminExcelToolbar from "../../components/common/AdminExcelToolbar";
 import {
   Plus,
@@ -2139,6 +2139,7 @@ import {
   FileVideo,
   Link as LinkIcon,
   Search,
+  AlertTriangle
 } from "lucide-react";
 
 const FALLBACK_IMG =
@@ -2670,6 +2671,8 @@ export const AdminCoursesPage = () => {
     ) : (
       <span style={{ color: "var(--success)" }}>Free</span>
     );
+
+    const courseToDelete = courses.find((c) => c._id === deleteCourseId);
 
   return (
     <div className="animate-fade-in responsive-page admin-courses-page">
@@ -3357,7 +3360,7 @@ export const AdminCoursesPage = () => {
         )}
 
       {/* Delete Confirmation Modal */}
-      <ConfirmModal
+      {/* <ConfirmModal
         isOpen={!!deleteCourseId}
         title="Delete Course"
         message="Are you sure you want to delete this course? All associated lesson enrollments will be impacted."
@@ -3365,7 +3368,92 @@ export const AdminCoursesPage = () => {
         isLoading={isDeleting}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteCourseId(null)}
-      />
+      /> */}
+
+      {/* Delete Confirmation Modal */}
+{deleteCourseId &&
+  createPortal(
+    <div className="modal-backdrop" onClick={() => !isDeleting && setDeleteCourseId(null)}>
+      <div
+        className="modal-dialog admin-course-modal animate-modal"
+        onClick={(e) => e.stopPropagation()}
+        style={{ padding: "2rem", maxWidth: "460px" }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "1.25rem",
+          }}
+        >
+          <h2 style={{ fontSize: "1.3rem" }}>Delete Course</h2>
+          <button
+            onClick={() => setDeleteCourseId(null)}
+            disabled={isDeleting}
+            style={{ background: "none", border: "none", cursor: "pointer" }}
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+          <div
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "50%",
+              background: "#fee2e2",
+              color: "var(--danger)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <AlertTriangle size={22} />
+          </div>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.5 }}>
+            Are you sure you want to delete{" "}
+            <strong style={{ color: "var(--text-main, inherit)" }}>
+              {courseToDelete?.courseName || "this course"}
+            </strong>
+            ? All associated lesson enrollments will be impacted.
+          </p>
+        </div>
+
+        <div
+          className="modal-footer-actions"
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "0.75rem",
+            marginTop: "1.75rem",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setDeleteCourseId(null)}
+            disabled={isDeleting}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmDelete}
+            disabled={isDeleting}
+            className="btn btn-primary"
+            style={{ background: "var(--danger)", borderColor: "var(--danger)" }}
+          >
+            {isDeleting ? "Deleting..." : "Delete Course"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )}
     </div>
   );
 };

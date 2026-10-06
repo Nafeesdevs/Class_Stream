@@ -3,9 +3,9 @@ import { createPortal } from "react-dom";
 import categoryService from "../../services/categoryService";
 import courseService from "../../services/courseService";
 import { useToast } from "../../context/ToastContext";
-import ConfirmModal from "../../components/common/ConfirmModal";
+// import ConfirmModal from "../../components/common/ConfirmModal";
 import AdminExcelToolbar from "../../components/common/AdminExcelToolbar";
-import { Plus, Edit2, Trash2, FolderTree, X, Image as ImageIcon, Search } from "lucide-react";
+import { Plus, Edit2, Trash2, FolderTree, X, Image as ImageIcon, Search, AlertTriangle } from "lucide-react";
 
 export const AdminCategoriesPage = () => {
   const toast = useToast();
@@ -134,6 +134,8 @@ export const AdminCategoriesPage = () => {
       setIsDeleting(false);
     }
   };
+
+  const categoryToDelete = categories.find((cat) => cat._id === deleteId);
 
   return (
     <div className="animate-fade-in responsive-page admin-categories-page">
@@ -275,14 +277,82 @@ export const AdminCategoriesPage = () => {
         document.body
       )}
 
-      <ConfirmModal
+      {/* <ConfirmModal
         isOpen={!!deleteId}
         title="Delete Category"
         message="Are you sure you want to delete this category? Associated courses will lose their category association."
         isLoading={isDeleting}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
-      />
+      /> */}
+
+      {deleteId && createPortal(
+  <div className="modal-backdrop" onClick={() => !isDeleting && setDeleteId(null)}>
+    <div
+      className="modal-dialog animate-modal"
+      onClick={(e) => e.stopPropagation()}
+      style={{ padding: "2rem", maxWidth: "440px" }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
+        <h2 style={{ fontSize: "1.3rem" }}>Delete Category</h2>
+        <button
+          onClick={() => setDeleteId(null)}
+          disabled={isDeleting}
+          style={{ background: "none", border: "none", cursor: "pointer" }}
+          aria-label="Close"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+        <div
+          style={{
+            width: "44px",
+            height: "44px",
+            borderRadius: "50%",
+            background: "#fee2e2",
+            color: "var(--danger)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <AlertTriangle size={22} />
+        </div>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.5 }}>
+          Are you sure you want to delete{" "}
+          <strong style={{ color: "var(--text-main, inherit)" }}>
+            {categoryToDelete?.categoryName || "this category"}
+          </strong>
+          ? Associated courses will lose their category association.
+        </p>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "1.75rem" }}>
+        <button
+          type="button"
+          onClick={() => setDeleteId(null)}
+          disabled={isDeleting}
+          className="btn btn-outline"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={confirmDelete}
+          disabled={isDeleting}
+          className="btn btn-primary"
+          style={{ background: "var(--danger)", borderColor: "var(--danger)" }}
+        >
+          {isDeleting ? "Deleting..." : "Delete"}
+        </button>
+      </div>
+    </div>
+  </div>,
+  document.body
+)}
     </div>
   );
 };

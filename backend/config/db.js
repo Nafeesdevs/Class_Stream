@@ -66,60 +66,60 @@ export const seedInitialData = async () => {
     }
 
     // 2. Seed Categories
-    const initialCategories = [
-      {
-        categoryName: "Computer Science",
-        categoryImage: [
-          {
-            imageUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80",
-            public_id: "seed_cs",
-          },
-        ],
-      },
-      {
-        categoryName: "Web Development",
-        categoryImage: [
-          {
-            imageUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&auto=format&fit=crop&q=80",
-            public_id: "seed_web",
-          },
-        ],
-      },
-      {
-        categoryName: "Data Science & AI",
-        categoryImage: [
-          {
-            imageUrl: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&auto=format&fit=crop&q=80",
-            public_id: "seed_ai",
-          },
-        ],
-      },
-      {
-        categoryName: "UI/UX & Product Design",
-        categoryImage: [
-          {
-            imageUrl: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&auto=format&fit=crop&q=80",
-            public_id: "seed_design",
-          },
-        ],
-      },
-      {
-        categoryName: "Cloud & DevOps",
-        categoryImage: [
-          {
-            imageUrl: "https://images.unsplash.com/-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=8",
-            public_id: "seed_cloud",
-          },
-        ],
-      },
-    ];
+    // const initialCategories = [
+    //   {
+    //     categoryName: "Computer Science",
+    //     categoryImage: [
+    //       {
+    //         imageUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80",
+    //         public_id: "seed_cs",
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     categoryName: "Web Development",
+    //     categoryImage: [
+    //       {
+    //         imageUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&auto=format&fit=crop&q=80",
+    //         public_id: "seed_web",
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     categoryName: "Data Science & AI",
+    //     categoryImage: [
+    //       {
+    //         imageUrl: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&auto=format&fit=crop&q=80",
+    //         public_id: "seed_ai",
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     categoryName: "UI/UX & Product Design",
+    //     categoryImage: [
+    //       {
+    //         imageUrl: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&auto=format&fit=crop&q=80",
+    //         public_id: "seed_design",
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     categoryName: "Cloud & DevOps",
+    //     categoryImage: [
+    //       {
+    //         imageUrl: "https://images.unsplash.com/-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=8",
+    //         public_id: "seed_cloud",
+    //       },
+    //     ],
+    //   },
+    // ];
 
-    for (const cat of initialCategories) {
-      const exists = await Category.findOne({ categoryName: cat.categoryName });
-      if (!exists) {
-        await Category.create(cat);
-      }
-    }
+    // for (const cat of initialCategories) {
+    //   const exists = await Category.findOne({ categoryName: cat.categoryName });
+    //   if (!exists) {
+    //     await Category.create(cat);
+    //   }
+    // }
 
     // 3. Seed Classes
     const initialClasses = ["Beginner", "Intermediate", "Advanced", "Class 10", "Class 12", "Masterclass"];

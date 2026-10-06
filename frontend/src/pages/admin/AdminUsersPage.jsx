@@ -241,12 +241,15 @@
 
 // export default AdminUsersPage;
 
+
+
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import authService from "../../services/authService";
 import { useToast } from "../../context/ToastContext";
-import ConfirmModal from "../../components/common/ConfirmModal";
+// import ConfirmModal from "../../components/common/ConfirmModal";
 import AdminExcelToolbar from "../../components/common/AdminExcelToolbar";
-import { Users, Trash2, Search } from "lucide-react";
+import { Users, Trash2, Search,X, AlertTriangle } from "lucide-react";
 
 /* Responsive styles: table on desktop, cards on mobile (<= 768px) */
 const responsiveCss = `
@@ -484,6 +487,8 @@ export const AdminUsersPage = () => {
     </button>
   );
 
+  const userToDelete = users.find((u) => u._id === deleteUserId);
+
   return (
     <div className="animate-fade-in responsive-page admin-users-page">
       <style>{responsiveCss}</style>
@@ -684,14 +689,99 @@ export const AdminUsersPage = () => {
         </div>
       )}
 
-      <ConfirmModal
+      {/* <ConfirmModal
         isOpen={!!deleteUserId}
         title="Delete User Account"
         message="Are you sure you want to permanently delete this user account and revoke all their enrollments?"
         isLoading={isDeleting}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteUserId(null)}
-      />
+      /> */}
+
+      {deleteUserId &&
+  createPortal(
+    <div className="modal-backdrop" onClick={() => !isDeleting && setDeleteUserId(null)}>
+      <div
+        className="modal-dialog animate-modal"
+        onClick={(e) => e.stopPropagation()}
+        style={{ padding: "2rem", maxWidth: "440px" }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "1.25rem",
+          }}
+        >
+          <h2 style={{ fontSize: "1.3rem" }}>Delete User Account</h2>
+          <button
+            onClick={() => setDeleteUserId(null)}
+            disabled={isDeleting}
+            style={{ background: "none", border: "none", cursor: "pointer" }}
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+          <div
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "50%",
+              background: "#fee2e2",
+              color: "var(--danger)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <AlertTriangle size={22} />
+          </div>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.5 }}>
+            Are you sure you want to permanently delete{" "}
+            <strong style={{ color: "var(--text-main, inherit)" }}>
+              {userToDelete?.name || "this user"}
+            </strong>
+            {userToDelete?.email ? ` (${userToDelete.email})` : ""}? This will also revoke all
+            their enrollments.
+          </p>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            flexWrap: "wrap",
+            gap: "0.75rem",
+            marginTop: "1.75rem",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setDeleteUserId(null)}
+            disabled={isDeleting}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmDelete}
+            disabled={isDeleting}
+            className="btn btn-primary"
+            style={{ background: "var(--danger)", borderColor: "var(--danger)" }}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )}
     </div>
   );
 };
