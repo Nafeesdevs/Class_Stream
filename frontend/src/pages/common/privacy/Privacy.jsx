@@ -41,7 +41,7 @@ const sections = [
     id: 'cookies',
     title: 'Cookies and local storage',
     body: [
-      'We use cookies and browser storage to keep you signed in, remember your preferences and measure how the site performs. You can clear or block cookies in your browser settings, but parts of ClassStream, such as staying logged in, may stop working.',
+      'We use cookies and browser storage to keep you signed in, remember your preferences and measure how the site performs. You can clear or block cookies in your browser settings, but parts of EduTrack, such as staying logged in, may stop working.',
     ],
   },
   {
@@ -81,7 +81,7 @@ const sections = [
     id: 'children',
     title: "Children's privacy",
     body: [
-      'ClassStream is built for professionals and students aged 16 and over. We do not knowingly collect data from children under 16. If you believe a child has given us personal data, contact us and we will delete it.',
+      'EduTrack is built for professionals and students aged 16 and over. We do not knowingly collect data from children under 16. If you believe a child has given us personal data, contact us and we will delete it.',
     ],
   },
   {
@@ -141,7 +141,7 @@ const Privacy = () => {
         <span className="pv-badge">Your privacy matters</span>
         <h1 className="pv-title">Privacy Policy</h1>
         <p className="pv-subtitle">
-          Here is what ClassStream collects when you learn with us, why we collect it,
+          Here is what EduTrack collects when you learn with us, why we collect it,
           and the choices you have.
         </p>
 

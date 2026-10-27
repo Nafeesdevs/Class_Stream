@@ -76,10 +76,10 @@
 //           }}
 //         >
 //           <div className="admin-mobile-header">
-//             <Link to="/" className="admin-mobile-brand" aria-label="ClassStream Admin Console">
+//             <Link to="/" className="admin-mobile-brand" aria-label="EduTrack Admin Console">
 //               <span className="admin-mobile-brand-icon"><GraduationCap size={21} /></span>
 //               <span className="admin-mobile-brand-copy">
-//                 <strong>ClassStream</strong>
+//                 <strong>EduTrack</strong>
 //                 <small>ADMIN CONSOLE</small>
 //               </span>
 //             </Link>
@@ -266,10 +266,10 @@ export const AdminDashboardLayout = () => {
           }}
         >
           <div className="admin-mobile-header">
-            <Link to="/" className="admin-mobile-brand" aria-label="ClassStream Admin Console">
+            <Link to="/" className="admin-mobile-brand" aria-label="EduTrack Admin Console">
               <span className="admin-mobile-brand-icon"><GraduationCap size={21} /></span>
               <span className="admin-mobile-brand-copy">
-                <strong>ClassStream</strong>
+                <strong>EduTrack</strong>
                 <small>ADMIN CONSOLE</small>
               </span>
             </Link>

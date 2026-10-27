@@ -41,7 +41,7 @@ export const RegisterPage = () => {
       setLoading(true);
       setErrorMsg("");
       const res = await register(name, email, password);
-      toast.success(`Account created! Welcome to Class Stream, ${name}.`);
+      toast.success(`Account created! Welcome to Edu Track, ${name}.`);
       navigate("/dashboard");
     } catch (err) {
       setErrorMsg(err.formattedMessage || "Registration failed. Try a different email.");
@@ -101,7 +101,7 @@ export const RegisterPage = () => {
             </div>
             <h1 style={{ fontSize: "1.75rem", marginBottom: "0.5rem" }}>Create Free Account</h1>
             <p style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
-              Join Class Stream and start watching top-tier courses today
+              Join Edu Track and start watching top-tier courses today
             </p>
           </div>
 

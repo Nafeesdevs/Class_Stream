@@ -83,10 +83,10 @@ export const UserDashboardLayout = () => {
           }}
         >
           <div className="admin-mobile-header">
-            <Link to="/" className="admin-mobile-brand" aria-label="ClassStream Student Dashboard">
+            <Link to="/" className="admin-mobile-brand" aria-label="EduTrack Student Dashboard">
               <span className="admin-mobile-brand-icon"><GraduationCap size={21} /></span>
               <span className="admin-mobile-brand-copy">
-                <strong>ClassStream</strong>
+                <strong>EduTrack</strong>
                 <small>STUDENT DASHBOARD</small>
               </span>
             </Link>

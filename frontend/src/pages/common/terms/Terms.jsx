@@ -36,7 +36,7 @@ const clauses = [
   },
   {
     title: 'Content and ownership',
-    text: 'Videos, notes and code samples belong to ClassStream or our instructors. Reviews you post stay yours, but you let us display them on the platform.',
+    text: 'Videos, notes and code samples belong to EduTrack or our instructors. Reviews you post stay yours, but you let us display them on the platform.',
   },
   {
     title: 'Ending access',
@@ -44,7 +44,7 @@ const clauses = [
   },
   {
     title: 'Liability and law',
-    text: 'ClassStream is provided as is, and we cannot guarantee job or salary outcomes. Our liability is limited to what you paid in the last 12 months. These terms follow Indian law, with disputes handled in Chennai.',
+    text: 'EduTrack is provided as is, and we cannot guarantee job or salary outcomes. Our liability is limited to what you paid in the last 12 months. These terms follow Indian law, with disputes handled in Chennai.',
   },
 ]
 
@@ -72,7 +72,7 @@ const Terms = ({ onAccept }) => {
          
           <h1 className="tm-title">Terms of Service</h1>
           <p className="tm-subtitle">
-            The short version of how ClassStream works, so you know what to expect.
+            The short version of how EduTrack works, so you know what to expect.
           </p>
         </div>
 

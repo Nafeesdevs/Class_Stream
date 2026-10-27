@@ -155,7 +155,7 @@ export const Navbar = () => {
                 letterSpacing: "-0.03em",
               }}
             >
-              Class<span style={{ color: "var(--primary)" }}>Stream</span>
+              Edu<span style={{ color: "var(--primary)" }}>Track</span>
             </span>
             <span
               style={{
@@ -166,7 +166,7 @@ export const Navbar = () => {
                 color: "var(--text-muted)",
               }}
             >
-              Masterclass Hub
+              Academic Hub
             </span>
           </div>
         </Link>

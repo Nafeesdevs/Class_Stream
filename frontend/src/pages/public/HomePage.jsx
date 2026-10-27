@@ -440,7 +440,7 @@
 //                 <div style={{ position: "relative", width: "100%", height: "300px", overflow: "hidden" }}>
 //                   <img
 //                     src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&auto=format&fit=crop&q=80"
-//                     alt="Students streaming lessons on Class Stream"
+//                     alt="Students streaming lessons on Edu Track"
 //                     style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.88)" }}
 //                   />
 
@@ -925,7 +925,7 @@
 //         </div>
 //       </section>
 
-//       {/* 5. WHY CHOOSE CLASS STREAM - INTERACTIVE BENTO GRID */}
+//       {/* 5. WHY CHOOSE EDU TRACK - INTERACTIVE BENTO GRID */}
 //       <section id="why-us" className="section" style={{ backgroundColor: "#ffffff", scrollMarginTop: "88px" }}>
 //         <div className="container">
 //           <div className="section-header">
@@ -1194,7 +1194,7 @@
 //         <div className="container">
 //           <div className="section-header">
 //             <span className="section-tag">Simple Journey</span>
-//             <h2 className="section-title">How Class Stream Operates</h2>
+//             <h2 className="section-title">How Edu Track Operates</h2>
 //             <p className="section-subtitle">
 //               Follow four straightforward steps to start building career-defining competence.
 //             </p>
@@ -1948,7 +1948,7 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 5. WHY CHOOSE CLASS STREAM - INTERACTIVE BENTO GRID */}
+      {/* 5. WHY CHOOSE EDU TRACK - INTERACTIVE BENTO GRID */}
       <section id="why-us" className="section" style={{ backgroundColor: "#ffffff", scrollMarginTop: "88px" }}>
         <div className="container">
           <div className="section-header">
@@ -2217,7 +2217,7 @@ export const HomePage = () => {
         <div className="container">
           <div className="section-header">
             <span className="section-tag">Simple Journey</span>
-            <h2 className="section-title">How Class Stream Operates</h2>
+            <h2 className="section-title">How Edu Track Operates</h2>
             <p className="section-subtitle">
               Follow four straightforward steps to start building career-defining competence.
             </p>

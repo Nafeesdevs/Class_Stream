@@ -50,7 +50,7 @@
 //                   letterSpacing: "-0.03em",
 //                 }}
 //               >
-//                 Class<span style={{ color: "#38bdf8" }}>Stream</span>
+//                 Edu<span style={{ color: "#38bdf8" }}>Track</span>
 //               </span>
 //             </div>
 //             <p style={{ color: "#94a3b8", fontSize: "0.9375rem", lineHeight: 1.7, marginBottom: "1.5rem" }}>
@@ -90,7 +90,7 @@
 //                 <a href="/#categories" style={{ color: "#94a3b8" }}>Course Categories</a>
 //               </li>
 //               <li>
-//                 <a href="/#why-us" style={{ color: "#94a3b8" }}>Why Class Stream</a>
+//                 <a href="/#why-us" style={{ color: "#94a3b8" }}>Why Edu Track</a>
 //               </li>
 //               <li>
 //                 <Link to="/register" style={{ color: "#94a3b8" }}>Student Sign Up</Link>
@@ -154,7 +154,7 @@
 //           }}
 //         >
 //           <div>
-//             &copy; {new Date().getFullYear()} Class Stream Education Inc. All rights reserved.
+//             &copy; {new Date().getFullYear()} Edu Track Education Inc. All rights reserved.
 //           </div>
 //           <div style={{ display: "flex", gap: "1.5rem" }}>
 
@@ -242,7 +242,7 @@ export const Footer = () => {
                   letterSpacing: "-0.03em",
                 }}
               >
-                Class<span style={{ color: "#38bdf8" }}>Stream</span>
+                Edu<span style={{ color: "#38bdf8" }}>Track</span>
               </span>
             </div>
             <p style={{ color: "#94a3b8", fontSize: "0.9375rem", lineHeight: 1.7, marginBottom: "1.5rem" }}>
@@ -282,7 +282,7 @@ export const Footer = () => {
                 <a href="/#categories" style={{ color: "#94a3b8" }}>Course Categories</a>
               </li>
               <li>
-                <a href="/#why-us" style={{ color: "#94a3b8" }}>Why Class Stream</a>
+                <a href="/#why-us" style={{ color: "#94a3b8" }}>Why Edu Track</a>
               </li>
               <li>
                 <Link to="/register" style={{ color: "#94a3b8" }}>Student Sign Up</Link>
@@ -348,7 +348,7 @@ export const Footer = () => {
           }}
         >
           <div>
-            &copy; {new Date().getFullYear()} Class Stream Education Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} Edu Track Education Inc. All rights reserved.
           </div>
           <div style={{ display: "flex", gap: "1.5rem" }}>
             <Link to="/privacy" style={{ cursor: "pointer" }}>
